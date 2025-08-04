@@ -1,0 +1,44 @@
+# Default ignored files
+### Java ###
+*.class
+*.log
+*.ctxt
+
+### Maven ###
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/timing.properties
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+# Optional - ignore run configs, or include if shared
+*.run.xml
+
+### OS-specific ###
+.DS_Store
+Thumbs.db
+
+### Logs ###
+*.log
+logs/
+*.pid
+
+### Spring Boot ###
+*.jar
+*.war
+
+### Docker ###
+.env
+docker-compose.override.yml
+docker-compose.local.yml
+.docker/
+
+### Others ###
+*.swp
+*.bak
+*.tmp
+*.orig
