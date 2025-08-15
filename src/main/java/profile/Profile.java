@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 /*
     @Builder - автоматическая генерация паттерна builder для создания объекта через него
     @Id + @GeneratedValue - автоинкрементируемый ID
-    strategy = GenerationType.IDENTITY - стратегия генерации ID (тут - БЛ сама создает ID через AUTO_INCREMENT)
+    strategy = GenerationType.IDENTITY - стратегия генерации ID (тут - БД сама создает ID через AUTO_INCREMENT)
     @Column - ограничивает длину строк
     @Lob - поле должно храниться как большой объект (не через ограничение VARCHAR(n))
     @CreationTimestamp - автоматическое заполнение даты создания сущности
