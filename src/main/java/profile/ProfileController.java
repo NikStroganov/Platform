@@ -1,5 +1,6 @@
 package profile;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import java.util.Optional;
 
 /*
     @RequestBody — Spring автоматически маппит JSON из запроса в DTO
+    @GetMapping("/{id}") значит, что id должен идти в URL, а не в теле запроса
  */
 
 @RestController
@@ -41,7 +43,8 @@ public class ProfileController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProfileDto> updateProfile(@PathVariable Long id, @RequestBody ProfileDto profileDto) {
+    public ResponseEntity<ProfileDto> updateProfile(@PathVariable Long id,
+                                                    @RequestBody ProfileDto profileDto) {
         try {
             ProfileDto updatedProfile = profileService.updateProfile(id, profileDto);
             return ResponseEntity.status(HttpStatus.OK).body(updatedProfile);

@@ -11,5 +11,5 @@ public interface ProfileService {
     ProfileDto createProfile(ProfileDto profileDto);
     Optional<ProfileDto> findProfileById(Long id);
     ProfileDto updateProfile(Long id, ProfileDto profileDto);
-    void deleteProfile(ProfileDto profileDto);
+    void deleteProfile(Long id);
 }

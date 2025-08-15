@@ -25,14 +25,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
 
-    private final ProfileRepo repo;
-    private final ProfileMapper mapper;
+    private final ProfileRepo profileRepo;
+    private final ProfileMapper profileMapper;
 
     @Override
     public List<ProfileDto> getProfile() {
-        return repo.findAll()
+        return profileRepo.findAll()
                 .stream()
-                .map(mapper::toDto)
+                .map(profileMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -44,24 +44,24 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public ProfileDto createProfile(ProfileDto profileDto) {
-        Profile savedEntity = repo.save(mapper.toEntity(profileDto));
-        if (repo.findByEmail(savedEntity.getEmail()).isPresent()) {
+        Profile savedEntity = profileRepo.save(profileMapper.toEntity(profileDto));
+        if (profileRepo.findByEmail(savedEntity.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Profile is already exists");
         }
-        return mapper.toDto(savedEntity);
+        return profileMapper.toDto(savedEntity);
     }
 
     @Override
     public Optional<ProfileDto> findProfileById(Long id) {
-        return repo.findById(id)
-                .map(mapper::toDto);
+        return profileRepo.findById(id)
+                .map(profileMapper::toDto);
     }
 
     //TODO брать айдишник из запроса PL
     //TODO переделать присваивание всех полей, когда реализую через MapStruct
     @Override
     public ProfileDto updateProfile(Long id, ProfileDto profileDto) {
-        Profile existingProfile = repo.findById(id)
+        Profile existingProfile = profileRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Profile not found"));
 
         existingProfile.setFirstName(profileDto.getFirstName());
@@ -72,12 +72,15 @@ public class ProfileServiceImpl implements ProfileService {
         existingProfile.setEducation(profileDto.getEducation());
         existingProfile.setGeneralInfo(profileDto.getGeneralInfo());
 
-        Profile updatedProfile = repo.save(existingProfile);
-        return mapper.toDto(updatedProfile);
+        Profile updatedProfile = profileRepo.save(existingProfile);
+        return profileMapper.toDto(updatedProfile);
     }
 
     @Override
-    public void deleteProfile(ProfileDto profileDto) {
-        repo.delete(mapper.toEntity(profileDto));
+    public void deleteProfile(Long id) {
+        if(!profileRepo.existsById(id)) {
+            throw new EntityNotFoundException("Profile with id " + id + " not found");
+        }
+        profileRepo.deleteById(id);
     }
 }
