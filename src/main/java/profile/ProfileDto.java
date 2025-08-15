@@ -7,10 +7,11 @@ import lombok.*;
 @AllArgsConstructor
 @Setter
 @Getter
-public class ProfileDTO {
+public class ProfileDto {
 
     private String firstName;
     private String lastName;
+    private String email;
     private String position;
     private String country;
     private String currentJob;

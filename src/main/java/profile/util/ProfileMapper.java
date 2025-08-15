@@ -1,15 +1,16 @@
 package profile.util;
 
 import profile.Profile;
-import profile.ProfileDTO;
+import profile.ProfileDto;
 
 public class ProfileMapper {
     //TODO использовать MapStruct
 
-    public static Profile toEntity(ProfileDTO dto) {
+    public Profile toEntity(ProfileDto dto) {
         return Profile.builder()
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
+                .email(dto.getEmail())
                 .position(dto.getPosition())
                 .country(dto.getCountry())
                 .currentJob(dto.getCurrentJob())
@@ -18,10 +19,11 @@ public class ProfileMapper {
                 .build();
     }
 
-    public static ProfileDTO toDto(Profile profile) {
-        return ProfileDTO.builder()
+    public ProfileDto toDto(Profile profile) {
+        return ProfileDto.builder()
                 .firstName(profile.getFirstName())
                 .lastName(profile.getLastName())
+                .email(profile.getEmail())
                 .position(profile.getPosition())
                 .country(profile.getCountry())
                 .currentJob(profile.getCurrentJob())

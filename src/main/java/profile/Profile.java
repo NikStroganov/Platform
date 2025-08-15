@@ -37,6 +37,9 @@ public class Profile {
     @Column(name = "LastName", length = 100)
     private String lastName;
 
+    @Column(name = "Email", length = 200)
+    private String email;
+
     @Column(name = "Position", length = 100)
     private String position;
 
