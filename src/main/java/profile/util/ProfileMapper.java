@@ -1,9 +1,8 @@
 package profile.util;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import profile.Profile;
-import profile.ProfileDto;
+import profile.dto.ProfileDto;
 
 @Component
 public class ProfileMapper {

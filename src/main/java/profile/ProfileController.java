@@ -1,12 +1,12 @@
 package profile;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import profile.dto.ProfileApiResponse;
+import profile.dto.ProfileDto;
 import profile.service.ProfileService;
 import java.util.List;
 import java.util.Optional;
@@ -31,30 +31,47 @@ public class ProfileController {
 
     @PostMapping
     @Operation(summary = "Создать нового пользователя")
-    public ResponseEntity<ProfileDto> createProfile(@RequestBody ProfileDto profileDto) {
+    public ResponseEntity<ProfileApiResponse> createProfile(@RequestBody ProfileDto profileDto) {
         try {
             ProfileDto createdProfile = profileService.createProfile(profileDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdProfile);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(ProfileApiResponse.success(201, "Пользователь успешно создан", createdProfile));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(ProfileApiResponse.error(400, "Пользователь не создан"));
         }
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить профиль клиента", description = "Возврашает профиль конкретного клиента по уникальному id")
-    public Optional<ProfileDto> getProfile(@PathVariable Long id) {
-        return profileService.findProfileById(id);
+    public ResponseEntity<ProfileApiResponse> getProfile(@PathVariable Long id) {
+        Optional<ProfileDto> optionalProfileDto = profileService.findProfileById(id);
+        if(optionalProfileDto.isPresent()) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(ProfileApiResponse.success(200, "Пользователь найден", optionalProfileDto.get()));
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(ProfileApiResponse.error(400, "Пользователь не найден"));
+        }
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Обновление профиля клиента", description = "Обновляет запись в БД по клиенту")
-    public ResponseEntity<ProfileDto> updateProfile(@PathVariable Long id,
-                                                    @RequestBody ProfileDto profileDto) {
+    @Operation(summary = "Обновление профиля клиента", description = "Обновляет данные в БД по клиенту")
+    public ResponseEntity<ProfileApiResponse> updateProfile(@PathVariable Long id,
+                                                            @RequestBody ProfileDto profileDto) {
         try {
             ProfileDto updatedProfile = profileService.updateProfile(id, profileDto);
-            return ResponseEntity.status(HttpStatus.OK).body(updatedProfile);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(ProfileApiResponse.success(200, "Данные о пользователе обновлены", updatedProfile));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(ProfileApiResponse.error(400, "Данные о пользователе не обновлены"));
         }
     }
 
@@ -63,7 +80,9 @@ public class ProfileController {
     public ResponseEntity<Optional<ProfileDto>> deleteProfile(@PathVariable Long id) {
         try {
             profileService.deleteProfile(id);
-            return ResponseEntity.status(HttpStatus.OK).body(profileService.findProfileById(id));
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(profileService.findProfileById(id));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }

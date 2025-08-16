@@ -3,7 +3,7 @@ package profile.service;
 import java.util.List;
 import java.util.Optional;
 
-import profile.ProfileDto;
+import profile.dto.ProfileDto;
 
 public interface ProfileService {
 
