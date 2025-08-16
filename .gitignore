@@ -3,6 +3,7 @@
 *.class
 *.log
 *.ctxt
+data.env
 
 ### Maven ###
 target/
