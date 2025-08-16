@@ -1,5 +1,6 @@
 package profile;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,11 +24,13 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @GetMapping
+    @Operation(summary = "Получить список профилей", description = "Возврашает список существующих профилей из БД")
     public List<ProfileDto> getProfilesList() {
         return profileService.getProfile();
     }
 
     @PostMapping
+    @Operation(summary = "Создать нового пользователя")
     public ResponseEntity<ProfileDto> createProfile(@RequestBody ProfileDto profileDto) {
         try {
             ProfileDto createdProfile = profileService.createProfile(profileDto);
@@ -38,11 +41,13 @@ public class ProfileController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Получить профиль клиента", description = "Возврашает профиль конкретного клиента по уникальному id")
     public Optional<ProfileDto> getProfile(@PathVariable Long id) {
         return profileService.findProfileById(id);
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Обновление профиля клиента", description = "Обновляет запись в БД по клиенту")
     public ResponseEntity<ProfileDto> updateProfile(@PathVariable Long id,
                                                     @RequestBody ProfileDto profileDto) {
         try {
@@ -54,6 +59,7 @@ public class ProfileController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Удаление профиля клиента", description = "Удалить профиль из БД по полученному id")
     public ResponseEntity<Optional<ProfileDto>> deleteProfile(@PathVariable Long id) {
         try {
             profileService.deleteProfile(id);
