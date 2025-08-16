@@ -30,7 +30,7 @@ public class ProfileServiceImpl implements ProfileService {
     private final ProfileMapper profileMapper;
 
     @Override
-    public List<ProfileDto> getProfile() {
+    public List<ProfileDto> getProfiles() {
         return profileRepo.findAll()
                 .stream()
                 .map(profileMapper::toDto)
@@ -45,20 +45,21 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public ProfileDto createProfile(ProfileDto profileDto) {
-        Profile savedEntity = profileRepo.save(profileMapper.toEntity(profileDto));
-        if (profileRepo.findByEmail(savedEntity.getEmail()).isPresent()) {
+        if (profileRepo.findByEmail(profileDto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Profile is already exists");
         }
+        Profile savedEntity = profileRepo.save(profileMapper.toEntity(profileDto));
         return profileMapper.toDto(savedEntity);
     }
 
     @Override
-    public Optional<ProfileDto> findProfileById(Long id) {
+    public ProfileDto findProfileById(Long id) {
         return profileRepo.findById(id)
-                .map(profileMapper::toDto);
+                .map(profileMapper::toDto)
+                .orElseThrow(() -> new EntityNotFoundException("Profile with id " + id + " not found"));
     }
 
-    //TODO брать айдишник из запроса PL
+    //DONE брать айдишник из запроса PL
     //TODO переделать присваивание всех полей, когда реализую через MapStruct
     @Override
     public ProfileDto updateProfile(Long id, ProfileDto profileDto) {

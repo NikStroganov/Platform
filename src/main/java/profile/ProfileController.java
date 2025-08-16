@@ -1,6 +1,7 @@
 package profile;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import profile.dto.ProfileApiResponse;
 import profile.dto.ProfileDto;
 import profile.service.ProfileService;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /*
@@ -26,7 +28,7 @@ public class ProfileController {
     @GetMapping
     @Operation(summary = "Получить список профилей", description = "Возврашает список существующих профилей из БД")
     public List<ProfileDto> getProfilesList() {
-        return profileService.getProfile();
+        return profileService.getProfiles();
     }
 
     @PostMapping
@@ -40,22 +42,22 @@ public class ProfileController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
-                    .body(ProfileApiResponse.error(400, "Пользователь не создан"));
+                    .body(ProfileApiResponse.error(400, e.getMessage()));
         }
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить профиль клиента", description = "Возврашает профиль конкретного клиента по уникальному id")
     public ResponseEntity<ProfileApiResponse> getProfile(@PathVariable Long id) {
-        Optional<ProfileDto> optionalProfileDto = profileService.findProfileById(id);
-        if(optionalProfileDto.isPresent()) {
+        try {
+            ProfileDto profileDto = profileService.findProfileById(id);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(ProfileApiResponse.success(200, "Пользователь найден", optionalProfileDto.get()));
-        } else {
+                    .body(ProfileApiResponse.success(200, "Профиль найден", profileDto));
+        } catch (EntityNotFoundException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(ProfileApiResponse.error(400, "Пользователь не найден"));
+                    .body(ProfileApiResponse.error(400, e.getMessage()));
         }
     }
 
@@ -68,23 +70,25 @@ public class ProfileController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(ProfileApiResponse.success(200, "Данные о пользователе обновлены", updatedProfile));
-        } catch (IllegalArgumentException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(ProfileApiResponse.error(400, "Данные о пользователе не обновлены"));
+                    .body(ProfileApiResponse.error(400, e.getMessage() + ", " + "Данные о пользователе не обновлены"));
         }
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удаление профиля клиента", description = "Удалить профиль из БД по полученному id")
-    public ResponseEntity<Optional<ProfileDto>> deleteProfile(@PathVariable Long id) {
+    public ResponseEntity<ProfileApiResponse> deleteProfile(@PathVariable Long id) {
         try {
             profileService.deleteProfile(id);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(profileService.findProfileById(id));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+                    .body(ProfileApiResponse.success(200, "Профиль удален", null));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(ProfileApiResponse.error(400, "Профиль не удален" + ", " + e.getMessage()));
         }
     }
 }

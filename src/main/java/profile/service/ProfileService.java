@@ -7,9 +7,9 @@ import profile.dto.ProfileDto;
 
 public interface ProfileService {
 
-    List<ProfileDto> getProfile();
+    List<ProfileDto> getProfiles();
     ProfileDto createProfile(ProfileDto profileDto);
-    Optional<ProfileDto> findProfileById(Long id);
+    ProfileDto findProfileById(Long id);
     ProfileDto updateProfile(Long id, ProfileDto profileDto);
     void deleteProfile(Long id);
 }
