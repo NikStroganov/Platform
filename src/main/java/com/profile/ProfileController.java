@@ -1,14 +1,14 @@
-package profile;
+package com.profile;
 
+import com.profile.dto.ProfileDto;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import utils.responsevalidator.ApiResponse;
-import profile.dto.ProfileDto;
-import profile.service.ProfileService;
+import com.utils.responsevalidator.ApiResponse;
+import com.profile.service.ProfileService;
 
 import java.util.List;
 

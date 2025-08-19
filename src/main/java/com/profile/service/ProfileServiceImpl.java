@@ -1,12 +1,12 @@
-package profile.service;
+package com.profile.service;
 
+import com.profile.Profile;
+import com.profile.dao.ProfileRepo;
+import com.profile.dto.ProfileDto;
+import com.profile.mapping.ProfileMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import profile.Profile;
-import profile.dto.ProfileDto;
-import profile.dao.ProfileRepo;
-import profile.mapping.ProfileMapper;
 
 import java.util.List;
 import java.util.stream.Collectors;

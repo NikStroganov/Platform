@@ -1,9 +1,8 @@
-package profile.service;
+package com.profile.service;
 
 import java.util.List;
-import java.util.Optional;
 
-import profile.dto.ProfileDto;
+import com.profile.dto.ProfileDto;
 
 public interface ProfileService {
 

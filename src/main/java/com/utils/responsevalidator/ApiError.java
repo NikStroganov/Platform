@@ -1,4 +1,4 @@
-package utils.responsevalidator;
+package com.utils.responsevalidator;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

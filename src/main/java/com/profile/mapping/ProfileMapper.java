@@ -1,8 +1,8 @@
-package profile.mapping;
+package com.profile.mapping;
 
+import com.profile.dto.ProfileDto;
 import org.springframework.stereotype.Component;
-import profile.Profile;
-import profile.dto.ProfileDto;
+import com.profile.Profile;
 
 @Component
 public class ProfileMapper {

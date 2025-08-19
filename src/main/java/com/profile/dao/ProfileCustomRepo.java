@@ -1,4 +1,4 @@
-package profile.dao;
+package com.profile.dao;
 
 public interface ProfileCustomRepo {
 }

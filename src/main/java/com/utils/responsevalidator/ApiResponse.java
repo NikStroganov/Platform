@@ -1,4 +1,4 @@
-package utils.responsevalidator;
+package com.utils.responsevalidator;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;

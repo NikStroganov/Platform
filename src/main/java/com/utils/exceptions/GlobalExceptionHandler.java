@@ -1,5 +1,6 @@
-package utils.exceptions;
+package com.utils.exceptions;
 
+import com.utils.responsevalidator.ApiError;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -7,8 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import utils.responsevalidator.ApiError;
-import utils.responsevalidator.ApiResponse;
+import com.utils.responsevalidator.ApiResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;

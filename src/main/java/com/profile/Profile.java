@@ -1,4 +1,4 @@
-package profile;
+package com.profile;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,7 +1,7 @@
-package profile.dao;
+package com.profile.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import profile.Profile;
+import com.profile.Profile;
 
 import java.util.Optional;
 
