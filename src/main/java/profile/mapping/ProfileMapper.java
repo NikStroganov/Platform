@@ -1,4 +1,4 @@
-package profile.util;
+package profile.mapping;
 
 import org.springframework.stereotype.Component;
 import profile.Profile;

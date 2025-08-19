@@ -6,11 +6,9 @@ import org.springframework.stereotype.Service;
 import profile.Profile;
 import profile.dto.ProfileDto;
 import profile.dao.ProfileRepo;
-import profile.util.ProfileMapper;
+import profile.mapping.ProfileMapper;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /*

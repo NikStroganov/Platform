@@ -5,10 +5,11 @@ import profile.Profile;
 
 import java.util.Optional;
 
-//работает только с сущностями, не с Dto
+//Работает только с сущностями, не с Dto
+//Параметры - сущность, с которой работаем и класс первичного ключа
 
 public interface ProfileRepo extends JpaRepository<Profile, Long>, ProfileCustomRepo {
-    //TODO пока базовый CRUD, добавить кастомные запросы
+    //DONE пока базовый CRUD, добавить кастомные запросы
     Optional<Profile> findByEmail(String email);
 }
 
