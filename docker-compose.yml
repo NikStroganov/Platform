@@ -1,0 +1,19 @@
+version: '2.32'
+
+volumes:
+  postgres_data:
+  platform_db:
+
+services:
+  platform_db:
+    image: postgres
+    restart: always
+    environment:
+      - DB_NAME=platform_db
+      - DB_USER=postgres
+      - DB_PASS=platform
+
+#  backend:
+#    build:
+
+

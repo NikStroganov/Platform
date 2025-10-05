@@ -34,9 +34,9 @@ logs/
 
 ### Docker ###
 .env
-docker-compose.override.yml
-docker-compose.local.yml
-.docker/
+#docker-compose.override.yml
+#docker-compose.local.yml
+#.docker/
 
 ### Others ###
 *.swp
