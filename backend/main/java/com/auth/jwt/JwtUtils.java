@@ -15,7 +15,7 @@ public class JwtUtils {
     private long expiration;
 
     //генерация токена
-    public String generateToken (User user) {
-        return
-    }
+    // public String generateToken (User user) {
+    //     return
+    // }
 }

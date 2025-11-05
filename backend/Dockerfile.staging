@@ -1,0 +1,23 @@
+# --- Stage 1: Build the application ---
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
+WORKDIR /app
+
+# copy pom.xml and download dependencies (cache optimization)
+COPY pom.xml ./
+RUN mvn dependency:go-offline
+
+# copy source code
+COPY src ./src
+
+# build the application (skip tests by default)
+RUN mvn clean package -DskipTests
+
+# --- Stage 2: Package the runtime image ---
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+
+# copy only the built jar from the builder stage
+COPY --from=builder /app/target/*.jar app.jar
+
+# expose application's port
+EXPOSE 7070

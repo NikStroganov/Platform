@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: platform_db
+    restart: always
+    environment:
+      POSTGRES_DB: platform_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: .                # корень проекта, где лежит pom.xml
+      dockerfile: Dockerfile    # укажем Dockerfile для сборки
+    container_name: backend
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: platform_db
+      DB_PORT: 5432
+      DB_NAME: platform_db
+      DB_USER: postgres
+      DB_PASS: platform
+    ports:
+      - "7070:7070"
+    command: ["sh", "-c", "mvn clean package -DskipTests && java -jar target/Platform-1.0-SNAPSHOT.jar"]
+    # ↑ сначала собирает jar через Maven, затем запускает
+
+volumes:
+  postgres_data:

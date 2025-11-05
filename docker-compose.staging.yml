@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16.0-alpine
+    restart: unless-stopped
+    container_name: platform_db
+    environment:
+      POSTGRES_DB: platform_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - platform
+    
+
+  backend:
+    image: srkinj/platform-backend:staging
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: platform_db
+      DB_PORT: 5432
+      DB_NAME: platform_db
+      DB_USER: postgres
+      DB_PASS: platform
+    ports:
+      - "7070:7070"
+    command: ["java", "-jar", "app.jar"]
+    networks:
+      - platform
+
+  frontend:
+    image: srkinj/platform-frontend:staging
+    networks:
+      - platform
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+
+networks:
+  platform:
+    external: true
+
+volumes:
+  postgres_data:
