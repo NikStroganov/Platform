@@ -21,6 +21,3 @@ COPY --from=builder /app/target/*.jar app.jar
 
 # expose application's port
 EXPOSE 7070
-
-# default command to run the app
-CMD ["java", "-jar", "app.jar"]

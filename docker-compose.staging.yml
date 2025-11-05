@@ -37,7 +37,7 @@ services:
   frontend:
     image: srkinj/platform-frontend:staging
     networks:
-      - landing
+      - platform
     ports:
       - 80:80
     depends_on:
