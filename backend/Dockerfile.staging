@@ -1,15 +1,24 @@
-# Stage 1: Build
-FROM maven:3.9.6-eclipse-temurin-21 AS build
+# --- Stage 1: Build the application ---
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
 WORKDIR /app
 
-COPY pom.xml .
-COPY main ./main
+# copy pom.xml and download dependencies (cache optimization)
+COPY pom.xml ./
+RUN mvn dependency:go-offline
 
-RUN mvn -f pom.xml -Dmaven.test.skip=true clean package
+# copy source code
+COPY src ./src
 
-# Stage 2: Run
+# build the application (skip tests by default)
+RUN mvn clean package -DskipTests
+
+# --- Stage 2: Package the runtime image ---
 FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
 
+
+# copy only the built jar from the builder stage
+COPY --from=builder /app/target/*.jar app.jar
+
+# expose application's port
 EXPOSE 7070
