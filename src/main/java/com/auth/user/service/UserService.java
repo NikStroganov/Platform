@@ -1,6 +1,5 @@
 package com.auth.user.service;
 
-import com.auth.configs.JwtConfig;
 import com.auth.email.services.EmailService;
 import com.auth.user.entity.UserEntity;
 import com.auth.user.repo.UserRepo;

@@ -18,6 +18,7 @@ public class EmailService {
      * @param subject - тема письма
      * @param body - тело (текст) письма с временным токеном
      */
+
     public void sendEmail (String email, String subject, String body){
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(email);
@@ -25,7 +26,6 @@ public class EmailService {
         mailMessage.setFrom("Our email");
         mailMessage.setSubject(subject);
         mailMessage.setText(body);
-
         mailSender.send(mailMessage);
     }
 }
