@@ -1,5 +1,6 @@
 package com.auth.user.entity;
 
+import com.auth.user.roles.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,12 +22,15 @@ public class UserEntity {
 
     private String email;
     private String password;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     private String resetToken; //одноразовый токен для сброса пароля
     private Instant resetTokenExpiration;
 
-    public UserEntity(String email, String password) {
+    public UserEntity(String email, Role role, String password) {
         this.email = email;
+        this.role = role;
         this.password = password;
     }
 }
