@@ -18,8 +18,7 @@ public class AuthExceptionHandler {
 
    @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> responseStatusExceptionHandler(ResponseStatusException e) {
-       var error = Map.of("errorMessage", e.getReason(), "errorStatusCode", e.getStatusCode().toString());
+       var error = Map.of("errorStatusCode", e.getStatusCode().toString(), "errorMessage", e.getReason());
        return ResponseEntity.status(e.getStatusCode()).body(error);
     }
-
 }
