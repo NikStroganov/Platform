@@ -27,6 +27,9 @@ public class UserEntity {
     private String resetToken; //одноразовый токен для сброса пароля
     private Instant resetTokenExpiration;
 
+    private String refreshToken;
+    private Instant refreshTokenExpiration;
+
     public UserEntity(String email, Role role, String password) {
         this.email = email;
         this.role = role;
