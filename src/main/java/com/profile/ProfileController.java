@@ -14,7 +14,7 @@ import java.util.List;
 
 /*
     @RequestBody — Spring автоматически маппит JSON из запроса в DTO
-    @GetMapping("/{id}") значит, что id должен идти в URL, а не в теле запроса
+    @GetMapping("/{id}") + @PathVariable значит, что id должен идти в URL, а не в теле запроса
  */
 
 @RestController
@@ -32,39 +32,51 @@ public class ProfileController {
 
     @PostMapping
     @Operation(summary = "Создать нового пользователя")
-    public ResponseEntity<ApiResponse> createProfile(@Valid @RequestBody ProfileDto profileDto) {
+    public ResponseEntity<ApiResponse<ProfileDto>> createProfile(@Valid @RequestBody ProfileDto profileDto) {
         ProfileDto createdProfile = profileService.createProfile(profileDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(ApiResponse.success(201,"Пользователь успешно создан", createdProfile, "endpoint"));
+                .body(ApiResponse.success(
+                        "Пользователь успешно создан",
+                        createdProfile
+                ));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить профиль клиента", description = "Возврашает профиль конкретного клиента по уникальному id")
-    public ResponseEntity<ApiResponse> getProfile(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ProfileDto>> getProfile(@PathVariable Long id) {
         ProfileDto profileDto = profileService.findProfileById(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success(200, "Профиль найден", profileDto, "endpoint"));
+                .body(ApiResponse.success(
+                        "Профиль найден",
+                        profileDto
+                ));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Обновление профиля клиента", description = "Обновляет данные в БД по клиенту")
-    public ResponseEntity<ApiResponse> updateProfile(@PathVariable Long id,
+    public ResponseEntity<ApiResponse<ProfileDto>> updateProfile(@PathVariable Long id,
                                                      @Valid @RequestBody ProfileDto profileDto) {
 
         ProfileDto updatedProfile = profileService.updateProfile(id, profileDto);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success(200, "Данные о пользователе обновлены", updatedProfile, "endpoint"));
+                .body(ApiResponse.success(
+                        "Данные о пользователе обновлены",
+                        updatedProfile
+                ));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удаление профиля клиента", description = "Удалить профиль из БД по полученному id")
-    public ResponseEntity<ApiResponse> deleteProfile(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteProfile(@PathVariable Long id) {
         profileService.deleteProfile(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success(200, "Профиль удален", null, "endpoint"));
+                .body(ApiResponse.success(
+                        "Профиль удален",
+                        null
+                ));
     }
 }
