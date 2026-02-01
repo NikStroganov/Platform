@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 //DONE переделать ответы контроллера с мапы на DTO + ApiResponse
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/v1/auth")
 public class UserController {
 
     private final UserService userService;

@@ -8,6 +8,17 @@ spring:
     password: ${DB_PASS}
     driver-class-name: org.postgresql.Driver
 
+  mail:
+    host: smtp.example.com   # SMTP сервер
+    port: 587                # порт (обычно 587 для TLS)
+    username: your_email@example.com
+    password: your_password
+    protocol: smtp
+    tls: true
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
   jpa:
     hibernate:
       ddl-auto: update   # update / create-drop / validate / none
@@ -23,8 +34,12 @@ jwt:
     refresh-expiration: 2592000
 
   rsa:
-    private-key-path: classpath:keys/private.pem
-    public-key-path: classpath:keys/public.pem
+    private-key-path: classpath:keys/private_pkcs8.pem
+    public-key-path: classpath:keys/public_pkcs8.pem
+
+logging:
+  level:
+    org.springframework.security: DEBUG
 
 #H2 config
 #spring:
