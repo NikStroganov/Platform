@@ -17,6 +17,15 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+jwt:
+  tokens:
+    access-expiration: 300
+    refresh-expiration: 2592000
+
+  rsa:
+    private-key-path: classpath:keys/private.pem
+    public-key-path: classpath:keys/public.pem
+
 #H2 config
 #spring:
 #  datasource:
