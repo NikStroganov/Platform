@@ -24,9 +24,11 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(columnDefinition = "TEXT")
     private String resetToken; //одноразовый токен для сброса пароля
     private Instant resetTokenExpiration;
 
+    @Column(columnDefinition = "TEXT")
     private String refreshToken;
     private Instant refreshTokenExpiration;
 

@@ -31,8 +31,11 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/login").permitAll() //с каких эндпоинтов можно осуществить доступ
-                        .requestMatchers(HttpMethod.POST, "/refresh").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll() //с каких эндпоинтов можно осуществить доступ
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/reset-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/redeem-password").permitAll()
                         .anyRequest().authenticated())
                 //Проверка подписи через создание бина NimbusJwtDecoder с публичным RSA-ключом
                 .oauth2ResourceServer(config -> config
