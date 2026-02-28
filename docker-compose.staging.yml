@@ -15,7 +15,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - platform
-    
 
   backend:
     image: srkinj/platform-backend:staging
@@ -28,6 +27,13 @@ services:
       DB_NAME: platform_db
       DB_USER: postgres
       DB_PASS: platform
+
+      JWT_PRIVATE_KEY_PATH: /keys/private_pkcs8.pem
+      JWT_PUBLIC_KEY_PATH: /keys/public_pkcs8.pem
+
+    volumes:
+      - /root/deploy/staging/keys:/keys:ro
+
     ports:
       - "7070:7070"
     command: ["java", "-jar", "app.jar"]

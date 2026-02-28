@@ -34,8 +34,8 @@ jwt:
     refresh-expiration: 2592000
 
   rsa:
-    private-key-path: classpath:keys/private_pkcs8.pem
-    public-key-path: classpath:keys/public_pkcs8.pem
+    private-key-path: ${JWT_PRIVATE_KEY_PATH}
+    public-key-path: ${JWT_PUBLIC_KEY_PATH}
 
 logging:
   level:
