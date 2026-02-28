@@ -140,7 +140,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.profile.ProfileApplication</mainClass>
+                    <mainClass>com.Application</mainClass>
                 </configuration>
             </plugin>
         </plugins>
