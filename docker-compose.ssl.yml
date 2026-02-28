@@ -1,0 +1,41 @@
+services:
+  nginx-proxy:
+    restart: always
+    image: jwilder/nginx-proxy:alpine
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - ./config.conf:/etc/nginx/conf.d/config.conf
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - platform
+
+  nginx-acme-companion:
+    restart: always
+    image: nginxproxy/acme-companion
+    volumes:
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - acme:/etc/acme.sh
+      - ./config.conf:/etc/nginx/conf.d/config.conf
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+    networks:
+      - platform
+
+volumes:
+  certs:
+  vhost:
+  html:
+  acme:
+
+networks:
+  platform:
+    external: true
