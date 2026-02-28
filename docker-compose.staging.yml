@@ -28,8 +28,8 @@ services:
       DB_USER: postgres
       DB_PASS: platform
 
-      JWT_PRIVATE_KEY_PATH: /keys/private_pkcs8.pem
-      JWT_PUBLIC_KEY_PATH: /keys/public_pkcs8.pem
+      JWT_PRIVATE_KEY_PATH: file:/keys/private_pkcs8.pem
+      JWT_PUBLIC_KEY_PATH: file:/keys/public_pkcs8.pem
 
     volumes:
       - /root/deploy/staging/keys:/keys:ro
@@ -55,3 +55,4 @@ networks:
 
 volumes:
   postgres_data:
+
