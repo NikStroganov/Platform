@@ -19,14 +19,12 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+    @Column(nullable = false, unique = true, length = 320)
     private String email;
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
-
-    @Column(columnDefinition = "TEXT")
-    private String resetToken; //одноразовый токен для сброса пароля
-    private Instant resetTokenExpiration;
 
     @Column(columnDefinition = "TEXT")
     private String refreshToken;

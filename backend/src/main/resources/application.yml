@@ -31,11 +31,14 @@ spring:
 jwt:
   tokens:
     access-expiration: 300
-    refresh-expiration: 2592000
-
+    refresh-expiration: 604800
   rsa:
     private-key-path: ${JWT_PRIVATE_KEY_PATH}
     public-key-path: ${JWT_PUBLIC_KEY_PATH}
+
+otp:
+  code:
+    otpCodeExpiration: 120
 
 logging:
   level:
