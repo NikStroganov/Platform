@@ -24,8 +24,12 @@ services:
       DB_NAME: platform_db
       DB_USER: postgres
       DB_PASS: platform
+      JWT_PRIVATE_KEY_PATH: file:/keys/private_pkcs8.pem
+      JWT_PUBLIC_KEY_PATH: file:/keys/public_pkcs8.pem
     ports:
       - "7070:7070"
+    volumes:
+      - ./keys:/keys:ro
 
 volumes:
   postgres_data:
