@@ -15,7 +15,7 @@ public class JwtProvider {
     @Value("${jwt.tokens.access-expiration:300}") //если в application.properties пусто, то задаем 300 с по умолчанию
     private Long accessExpiration;
 
-    @Value("${jwt.tokens.refresh-expiration:2592000}")
+    @Value("${jwt.tokens.refresh-expiration:604800}")
     private Long refreshExpiration;
 
     private final JwtEncoder jwtEncoder;

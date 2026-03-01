@@ -1,5 +1,6 @@
-package com.auth.email.services;
+package com.email.services;
 
+import com.email.config.MailProperties;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -7,9 +8,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
     private JavaMailSender mailSender;
+    private MailProperties mailProperties;
 
-    public EmailService(JavaMailSender mailSender) {
+    public EmailService(JavaMailSender mailSender,
+                        MailProperties mailProperties) {
         this.mailSender = mailSender;
+        this.mailProperties = mailProperties;
     }
 
     /**
@@ -22,8 +26,7 @@ public class EmailService {
     public void sendEmail (String email, String subject, String body){
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(email);
-        //TODO прописать корректный email
-        mailMessage.setFrom("Our email");
+        mailMessage.setFrom(mailProperties.getSendFrom());
         mailMessage.setSubject(subject);
         mailMessage.setText(body);
         mailSender.send(mailMessage);

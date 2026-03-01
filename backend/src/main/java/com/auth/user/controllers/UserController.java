@@ -1,17 +1,14 @@
 package com.auth.user.controllers;
 
-import com.auth.user.dto.*;
+import com.auth.user.dto.rq.RefreshTokenDto;
+import com.auth.user.dto.rq.UserDto;
+import com.auth.user.dto.rs.AuthResponseDto;
 import com.auth.user.service.UserService;
 import com.utils.responsevalidator.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-
-//DONE переделать ответы контроллера с мапы на DTO + ApiResponse
 @RestController
 @RequestMapping("/api/v1/auth")
 public class UserController {
@@ -44,35 +41,24 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<Void>> register(@RequestBody @Valid UserDto userDto) {
-        userService.createUser(userDto.email(), userDto.password());
+    public ResponseEntity<ApiResponse<AuthResponseDto>> register(@RequestBody @Valid UserDto userDto) {
+        var pairOfToken = userService.createUser(userDto.email(), userDto.password());
         return ResponseEntity
                 .ok()
                 .body(ApiResponse.success(
                         "Пользователь зарегистрирован",
-                        null
+                        pairOfToken
                 ));
     }
 
-    @PostMapping("/redeem-password")
-    public ResponseEntity<ApiResponse<Void>> redeemPassword(@RequestBody @Valid UserRedeemPasswordDto userRedeemPasswordDto) {
-        userService.redeemPassword(userRedeemPasswordDto.email());
+    @PostMapping("/set-new-password")
+    public ResponseEntity<ApiResponse<AuthResponseDto>> setNewPassword(@RequestBody @Valid UserDto userDto) {
+        var newPairOfToken = userService.setNewPassword(userDto.email(), userDto.password());
         return ResponseEntity
                 .ok()
                 .body(ApiResponse.success(
-                        "Токен для сброса сгенерирован",
-                        null
-                ));
-    }
-
-    @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody @Valid UserResetPasswordDto userResetPasswordDto) {
-        userService.resetPassword(userResetPasswordDto.token(), userResetPasswordDto.password());
-        return ResponseEntity
-                .ok()
-                .body(ApiResponse.success(
-                        "Пароль изменен",
-                        null
+                        "Пароль сменен",
+                        newPairOfToken
                 ));
     }
 }
