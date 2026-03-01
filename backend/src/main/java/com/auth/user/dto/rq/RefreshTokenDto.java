@@ -1,4 +1,4 @@
-package com.auth.user.dto;
+package com.auth.user.dto.rq;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

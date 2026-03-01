@@ -1,7 +1,7 @@
 package com.auth.user.service;
 
-import com.auth.email.services.EmailService;
-import com.auth.user.dto.AuthResponseDto;
+import com.email.services.EmailService;
+import com.auth.user.dto.rs.AuthResponseDto;
 import com.auth.user.entity.UserEntity;
 import com.auth.user.repo.UserRepo;
 import com.auth.user.roles.Role;
@@ -10,16 +10,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.time.Instant;
-import java.util.UUID;
 
 @Service
 public class UserService {
 
-    //DONE Поменять время жизни токена
-    //DONE Точно ли тут Instant и что это за класс
     @Value("${jwt.tokens.access-expiration:300}")
     private Long accessTokenExpirationSeconds;
 
@@ -41,14 +38,28 @@ public class UserService {
         return bCryptPasswordEncoder.matches(stringPassword, encodedPassword);
     }
 
-    public void createUser(String email, String password) {
+    @Transactional
+    public AuthResponseDto createUser(String email, String password) {
         if(userRepo.findByEmail(email).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "email already exist");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exist");
         }
 
         var encodedPassword = bCryptPasswordEncoder.encode(password);
         var newUser = new UserEntity(email, Role.USER, encodedPassword);
+        //Берем почту и роль из БД, а не из запроса, чтобы никто не присвоил админские права через постман
+        String accessToken = jwtProvider.createAccessToken(
+                newUser.getEmail(),
+                newUser.getRole().toString());
+        String refreshToken;
+        refreshToken = jwtProvider.createRefreshToken(newUser.getEmail());
+        newUser.setRefreshToken(refreshToken);
+        newUser.setRefreshTokenExpiration(Instant
+                .now()
+                //TODO Нужен ли this здесь и ниже
+                .plusSeconds(refreshTokenExpirationSeconds));
+        newUser.setPassword(encodedPassword);
         userRepo.save(newUser);
+        return new AuthResponseDto(accessToken, refreshToken);
     }
 
     public AuthResponseDto login(String email, String password) {
@@ -87,7 +98,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token mismatch");
         }
 
-        if(user.getResetTokenExpiration().isBefore(Instant.now())) {
+        if(user.getRefreshTokenExpiration().isBefore(Instant.now())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token expired");
         }
 
@@ -98,32 +109,27 @@ public class UserService {
         return new AuthResponseDto(accessToken, refreshToken);
     }
 
-    public void redeemPassword(String email) {
+    public AuthResponseDto setNewPassword(String email, String password) {
         var user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
-
-        var token = UUID.randomUUID().toString();
-        user.setResetToken(token);
-        user.setResetTokenExpiration(Instant
-                .now()
-                .plusSeconds(this.accessTokenExpirationSeconds));
-        userRepo.save(user);
-
-        //TODO проработать механизм отправки письма - где хранится адрес отправителя, сформировать API тела с токеном
-        emailService.sendEmail(user.getEmail(),"Сброс пароля", "Тело письма (тут токен в теле)");
-    }
-
-    public void resetPassword(String token, String password) {
-        var user = userRepo.findByResetToken(token)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Temp token not found"));
-
-        if(user.getResetTokenExpiration().isAfter(Instant.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token expired");
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email credentials"));
+        if(passwordMatch(password, user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password cannot be same as old password");
         }
-
-        user.setPassword(password);
-        user.setResetToken(null);
-        user.setResetTokenExpiration(null);
+        var encodedPassword = bCryptPasswordEncoder.encode(password);
+        //Берем почту и роль из БД, а не из запроса, чтобы никто не присвоил админские права через постман
+        String accessToken = jwtProvider.createAccessToken(
+                user.getEmail(),
+                user.getRole().toString());
+        String refreshToken;
+        refreshToken = jwtProvider.createRefreshToken(user.getEmail());
+        user.setRefreshToken(refreshToken);
+        user.setRefreshTokenExpiration(Instant
+                    .now()
+                    //TODO Нужен ли this здесь и ниже
+                    .plusSeconds(refreshTokenExpirationSeconds));
+        user.setPassword(encodedPassword);
         userRepo.save(user);
+        return new AuthResponseDto(accessToken, refreshToken);
     }
+//TODO проработать механизм отправки письма - где хранится адрес отправителя, сформировать API тела с токеном
 }
