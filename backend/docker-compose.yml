@@ -4,7 +4,6 @@ services:
   postgres:
     image: postgres:16
     container_name: platform_db
-    restart: always
     environment:
       POSTGRES_DB: platform_db
       POSTGRES_USER: postgres
@@ -15,9 +14,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   backend:
-    build:
-      context: .                # корень проекта, где лежит pom.xml
-      dockerfile: Dockerfile    # укажем Dockerfile для сборки
+    build: .
     container_name: backend
     depends_on:
       - postgres
@@ -27,10 +24,12 @@ services:
       DB_NAME: platform_db
       DB_USER: postgres
       DB_PASS: platform
+      JWT_PRIVATE_KEY_PATH: file:/keys/private_pkcs8.pem
+      JWT_PUBLIC_KEY_PATH: file:/keys/public_pkcs8.pem
     ports:
       - "7070:7070"
-    command: ["sh", "-c", "mvn clean package -DskipTests && java -jar target/Platform-1.0-SNAPSHOT.jar"]
-    # ↑ сначала собирает jar через Maven, затем запускает
+    volumes:
+      - ./keys:/keys:ro
 
 volumes:
   postgres_data:
