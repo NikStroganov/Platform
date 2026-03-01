@@ -4,6 +4,7 @@
 *.log
 *.ctxt
 data.env
+keys/
 
 ### Maven ###
 target/
