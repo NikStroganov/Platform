@@ -7,11 +7,14 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "apigen": "npx swagger-typescript-api generate --axios --extract-responses -p ../docs/openapi.json -o ./src/shared/api/gen -n apigen.ts --modular"
   },
   "dependencies": {
+    "axios": "^1.13.6",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "swagger-typescript-api": "^13.2.18"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

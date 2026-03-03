@@ -1,0 +1,683 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://backend.careit.tech",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/api/v1/userProfile/{id}": {
+      "get": {
+        "tags": [
+          "profile-controller"
+        ],
+        "summary": "Получить профиль клиента",
+        "description": "Возврашает профиль конкретного клиента по уникальному id",
+        "operationId": "getProfile",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseProfileDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "profile-controller"
+        ],
+        "summary": "Обновление профиля клиента",
+        "description": "Обновляет данные в БД по клиенту",
+        "operationId": "updateProfile",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseProfileDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "profile-controller"
+        ],
+        "summary": "Удаление профиля клиента",
+        "description": "Удалить профиль из БД по полученному id",
+        "operationId": "deleteProfile",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/verify/verifyEmail": {
+      "post": {
+        "tags": [
+          "otp-controller"
+        ],
+        "operationId": "verifyEmail",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserEmailDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/verify/send-confirm-code": {
+      "post": {
+        "tags": [
+          "otp-controller"
+        ],
+        "operationId": "sendConfirmCode",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpCodeDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/verify/reset-password": {
+      "post": {
+        "tags": [
+          "otp-controller"
+        ],
+        "operationId": "resetPassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserEmailDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/verify/isUser": {
+      "post": {
+        "tags": [
+          "otp-controller"
+        ],
+        "operationId": "isUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserEmailDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseUserExistResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/userProfile": {
+      "get": {
+        "tags": [
+          "profile-controller"
+        ],
+        "summary": "Получить список профилей",
+        "description": "Возврашает список существующих профилей из БД",
+        "operationId": "getProfilesList",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProfileDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "profile-controller"
+        ],
+        "summary": "Создать нового пользователя",
+        "operationId": "createProfile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseProfileDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/set-new-password": {
+      "post": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "setNewPassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAuthResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAuthResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "refresh",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAuthResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAuthResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ProfileDto": {
+        "required": [
+          "email",
+          "firstName",
+          "lastName"
+        ],
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "Имя пользователя",
+            "example": "Иван"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Фамилия пользователя",
+            "example": "Иванов"
+          },
+          "email": {
+            "type": "string",
+            "description": "Почта пользователя",
+            "example": "ИванИванов@mail.ru"
+          },
+          "position": {
+            "type": "string",
+            "description": "Должность пользователя",
+            "example": "Разработчик"
+          },
+          "country": {
+            "type": "string",
+            "description": "Страна пользователя",
+            "example": "Россия"
+          },
+          "currentJob": {
+            "type": "string",
+            "description": "Место работы пользователя",
+            "example": "ПАО Сбербанк"
+          },
+          "education": {
+            "type": "string",
+            "description": "Образование пользователя",
+            "example": "СПбГЭТУ ЛЭТИ"
+          },
+          "generalInfo": {
+            "type": "string",
+            "description": "Основная информация о пользователе",
+            "example": "Привет! Я Иван из России. Люблю писать код"
+          }
+        },
+        "description": "DTO для профиля пользователя"
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "description": "Статус код ошибки"
+      },
+      "ApiResponseProfileDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Успешность операции"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение с инофрмацией о результате операции"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProfileDto"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Время запроса",
+            "format": "date-time"
+          },
+          "statusError": {
+            "type": "array",
+            "description": "Статус код ошибки",
+            "items": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Ответы для операций с профилем пользователя"
+      },
+      "UserEmailDto": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "maxLength": 2147483647,
+            "minLength": 4,
+            "type": "string"
+          }
+        },
+        "description": "Dto для проверки существования пользователя"
+      },
+      "ApiResponseVoid": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Успешность операции"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение с инофрмацией о результате операции"
+          },
+          "data": {
+            "type": "object",
+            "description": "Блок с DTO"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Время запроса",
+            "format": "date-time"
+          },
+          "statusError": {
+            "type": "array",
+            "description": "Статус код ошибки",
+            "items": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Ответы для операций с профилем пользователя"
+      },
+      "OtpCodeDto": {
+        "required": [
+          "email",
+          "otp"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "maxLength": 2147483647,
+            "minLength": 4,
+            "type": "string"
+          },
+          "otp": {
+            "type": "string"
+          }
+        },
+        "description": "Dto для проверки существования пользователя"
+      },
+      "ApiResponseUserExistResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Успешность операции"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение с инофрмацией о результате операции"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserExistResponse"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Время запроса",
+            "format": "date-time"
+          },
+          "statusError": {
+            "type": "array",
+            "description": "Статус код ошибки",
+            "items": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Ответы для операций с профилем пользователя"
+      },
+      "UserExistResponse": {
+        "type": "object",
+        "properties": {
+          "exists": {
+            "type": "boolean"
+          }
+        },
+        "description": "Блок с DTO"
+      },
+      "UserDto": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "maxLength": 2147483647,
+            "minLength": 4,
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 2147483647,
+            "minLength": 5,
+            "type": "string"
+          }
+        },
+        "description": "Dto для авторизации"
+      },
+      "ApiResponseAuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Успешность операции"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение с инофрмацией о результате операции"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AuthResponseDto"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Время запроса",
+            "format": "date-time"
+          },
+          "statusError": {
+            "type": "array",
+            "description": "Статус код ошибки",
+            "items": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Ответы для операций с профилем пользователя"
+      },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "description": "Ответ при авторизации с access и refresh токенами"
+      },
+      "RefreshTokenDto": {
+        "required": [
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "description": "Dto для запроса нового access токена по refresh токену"
+      }
+    }
+  }
+}
