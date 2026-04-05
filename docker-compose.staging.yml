@@ -49,7 +49,7 @@ services:
       VIRTUAL_HOST: careit.tech
       LETSENCRYPT_HOST: careit.tech
       LETSENCRYPT_EMAIL: andrewsorokinch@gmail.com
-      VIRTUAL_PORT: 80
+      VIRTUAL_PORT: 3000
 
 networks:
   platform:
@@ -57,4 +57,3 @@ networks:
 
 volumes:
   postgres_data:
-
