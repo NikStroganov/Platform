@@ -1,9 +1,8 @@
 package com.verification.entity;
 
+import com.utils.enums.VerificationPurpose;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -12,25 +11,29 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "otp_codes")
 public class OtpEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String email;
     private String code;
     private Instant createdAt;
     private Instant expiredAt;
-    private boolean used;
 
-    public OtpEntity(String email, String code, Instant createdAt, Instant expiredAt, boolean used) {
-        this.email = email;
-        this.code = code;
-        this.createdAt = createdAt;
-        this.expiredAt = expiredAt;
-        this.used = used;
-    }
+    @Column(nullable = false)
+    private boolean otpUsed;
+
+    @Column(nullable = false)
+    private boolean tokenVerified;
+
+    @Enumerated(EnumType.STRING)
+    private VerificationPurpose purpose;
+
+    @Column(unique = true)
+    private UUID verificationToken;
 }

@@ -36,9 +36,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/verify/isUser").permitAll() //с каких эндпоинтов можно осуществить доступ
-                        .requestMatchers(HttpMethod.POST, "/api/v1/verify/verifyEmail").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/verify/send-confirm-code").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/verify/reset-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/verify/sendOtp").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/verify/validateOtp").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh").permitAll()

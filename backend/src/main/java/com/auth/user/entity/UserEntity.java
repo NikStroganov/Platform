@@ -21,6 +21,8 @@ public class UserEntity {
     private UUID id;
     @Column(nullable = false, unique = true, length = 320)
     private String email;
+
+    private Instant createdAt;
     @Column(nullable = false, columnDefinition = "TEXT")
     private String password;
     @Enumerated(EnumType.STRING)

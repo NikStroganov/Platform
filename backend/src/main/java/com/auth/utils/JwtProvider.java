@@ -1,5 +1,6 @@
 package com.auth.utils;
 
+import com.utils.enums.Errors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
@@ -76,7 +77,7 @@ public class JwtProvider {
         var jwt = jwtDecoder.decode(token); //Проверяем подпись
         String type = jwt.getClaimAsString("type");
         if(!("refresh".equals(type))) {
-            throw new JwtException("Invalid token type");
+            throw new JwtException(Errors.INVALID_TOKEN_TYPE.getMessage());
         }
         return jwt.getSubject();
     }

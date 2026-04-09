@@ -19,6 +19,7 @@ services:
     depends_on:
       - postgres
     environment:
+      SPRING_PROFILES_ACTIVE: prod
       DB_HOST: platform_db
       DB_PORT: 5432
       DB_NAME: platform_db
