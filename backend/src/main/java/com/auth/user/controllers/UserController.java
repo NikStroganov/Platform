@@ -2,6 +2,7 @@ package com.auth.user.controllers;
 
 import com.auth.user.dto.rq.RefreshTokenDto;
 import com.auth.user.dto.rq.UserDto;
+import com.auth.user.dto.rq.UserRegisterDto;
 import com.auth.user.dto.rs.AuthResponseDto;
 import com.auth.user.service.UserService;
 import com.utils.responsevalidator.ApiResponse;
@@ -41,8 +42,8 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<AuthResponseDto>> register(@RequestBody @Valid UserDto userDto) {
-        var pairOfToken = userService.createUser(userDto.email(), userDto.password());
+    public ResponseEntity<ApiResponse<AuthResponseDto>> register(@RequestBody @Valid UserRegisterDto userRegisterDto) {
+        var pairOfToken = userService.createUser(userRegisterDto.email(), userRegisterDto.password(), userRegisterDto.verificationToken());
         return ResponseEntity
                 .ok()
                 .body(ApiResponse.success(
@@ -52,8 +53,8 @@ public class UserController {
     }
 
     @PostMapping("/set-new-password")
-    public ResponseEntity<ApiResponse<AuthResponseDto>> setNewPassword(@RequestBody @Valid UserDto userDto) {
-        var newPairOfToken = userService.setNewPassword(userDto.email(), userDto.password());
+    public ResponseEntity<ApiResponse<AuthResponseDto>> setNewPassword(@RequestBody @Valid UserRegisterDto userRegisterDto) {
+        var newPairOfToken = userService.setNewPassword(userRegisterDto.email(), userRegisterDto.password(), userRegisterDto.verificationToken());
         return ResponseEntity
                 .ok()
                 .body(ApiResponse.success(

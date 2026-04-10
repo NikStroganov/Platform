@@ -6,13 +6,16 @@ import com.auth.user.entity.UserEntity;
 import com.auth.user.repo.UserRepo;
 import com.auth.user.roles.Role;
 import com.auth.utils.JwtProvider;
+import com.utils.enums.Errors;
+import com.utils.enums.VerificationPurpose;
+import com.utils.exceptions.ApiException;
+import com.verification.repo.OtpRepo;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 import java.time.Instant;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -23,12 +26,14 @@ public class UserService {
     @Value("${jwt.tokens.refresh-expiration:2592000}")
     private Long refreshTokenExpirationSeconds;
     private final UserRepo userRepo;
+    private final OtpRepo otpRepo;
     private final JwtProvider jwtProvider;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final EmailService emailService;
 
-    public UserService(UserRepo userRepo, JwtProvider jwtProvider, BCryptPasswordEncoder bCryptPasswordEncoder, EmailService emailService) {
+    public UserService(UserRepo userRepo, OtpRepo otpRepo, JwtProvider jwtProvider, BCryptPasswordEncoder bCryptPasswordEncoder, EmailService emailService) {
         this.userRepo = userRepo;
+        this.otpRepo = otpRepo;
         this.jwtProvider = jwtProvider;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.emailService = emailService;
@@ -39,13 +44,18 @@ public class UserService {
     }
 
     @Transactional
-    public AuthResponseDto createUser(String email, String password) {
+    public AuthResponseDto createUser(String email, String password, UUID verificationToken) {
         if(userRepo.findByEmail(email).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exist");
+            throw new ApiException(Errors.EMAIL_ALREADY_EXISTS, "email");
+        }
+
+        if(otpRepo.findByEmailAndVerificationTokenAndPurposeAndTokenVerifiedTrue(email, verificationToken, VerificationPurpose.REGISTER).isEmpty()) {
+            throw new ApiException(Errors.UNVERIFIED_BY_OTP_USER);
         }
 
         var encodedPassword = bCryptPasswordEncoder.encode(password);
         var newUser = new UserEntity(email, Role.USER, encodedPassword);
+        newUser.setCreatedAt(Instant.now());
         //Берем почту и роль из БД, а не из запроса, чтобы никто не присвоил админские права через постман
         String accessToken = jwtProvider.createAccessToken(
                 newUser.getEmail(),
@@ -55,7 +65,6 @@ public class UserService {
         newUser.setRefreshToken(refreshToken);
         newUser.setRefreshTokenExpiration(Instant
                 .now()
-                //TODO Нужен ли this здесь и ниже
                 .plusSeconds(refreshTokenExpirationSeconds));
         newUser.setPassword(encodedPassword);
         userRepo.save(newUser);
@@ -64,9 +73,9 @@ public class UserService {
 
     public AuthResponseDto login(String email, String password) {
         var user = userRepo.findByEmail(email)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email credentials"));
+                        .orElseThrow(() -> new ApiException(Errors.INVALID_EMAIL, "email"));
         if(!(passwordMatch(password, user.getPassword()))) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid password");
+            throw new ApiException(Errors.INVALID_PASSWORD, "password");
         }
         //Берем почту и роль из БД, а не из запроса, чтобы никто не присвоил админские права через постман
         String accessToken = jwtProvider.createAccessToken(
@@ -78,7 +87,6 @@ public class UserService {
             user.setRefreshToken(refreshToken);
             user.setRefreshTokenExpiration(Instant
                     .now()
-                    //TODO Нужен ли this здесь и ниже
                     .plusSeconds(refreshTokenExpirationSeconds));
             userRepo.save(user);
         } else {
@@ -92,14 +100,14 @@ public class UserService {
     public AuthResponseDto refreshToken(String refreshToken) {
         String email = jwtProvider.validateRefreshToken(refreshToken);
         var user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+                .orElseThrow(() -> new ApiException(Errors.USER_NOT_FOUND));
 
         if(!(refreshToken.equals(user.getRefreshToken()))) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token mismatch");
+            throw new ApiException(Errors.REFRESH_TOKEN_MISMATCH);
         }
 
         if(user.getRefreshTokenExpiration().isBefore(Instant.now())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token expired");
+            throw new ApiException(Errors.REFRESH_TOKEN_EXPIRED);
         }
 
         String accessToken = jwtProvider.createAccessToken(
@@ -109,12 +117,18 @@ public class UserService {
         return new AuthResponseDto(accessToken, refreshToken);
     }
 
-    public AuthResponseDto setNewPassword(String email, String password) {
+    public AuthResponseDto setNewPassword(String email, String password, UUID verificationToken) {
         var user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email credentials"));
-        if(passwordMatch(password, user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password cannot be same as old password");
+                .orElseThrow(() -> new ApiException(Errors.INVALID_EMAIL, "email"));
+
+        if(otpRepo.findByEmailAndVerificationTokenAndPurposeAndTokenVerifiedTrue(email, verificationToken, VerificationPurpose.RESET_PASSWORD).isEmpty()) {
+            throw new ApiException(Errors.UNVERIFIED_BY_OTP_USER);
         }
+
+        if(passwordMatch(password, user.getPassword())) {
+            throw new ApiException(Errors.SAMENESS_PASSWORD, "password");
+        }
+
         var encodedPassword = bCryptPasswordEncoder.encode(password);
         //Берем почту и роль из БД, а не из запроса, чтобы никто не присвоил админские права через постман
         String accessToken = jwtProvider.createAccessToken(
@@ -125,7 +139,6 @@ public class UserService {
         user.setRefreshToken(refreshToken);
         user.setRefreshTokenExpiration(Instant
                     .now()
-                    //TODO Нужен ли this здесь и ниже
                     .plusSeconds(refreshTokenExpirationSeconds));
         user.setPassword(encodedPassword);
         userRepo.save(user);

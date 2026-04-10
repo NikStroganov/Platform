@@ -3,18 +3,20 @@ package com.verification.service;
 import com.auth.user.repo.UserRepo;
 import com.email.config.MailProperties;
 import com.email.services.EmailService;
+import com.utils.enums.Errors;
+import com.utils.enums.VerificationPurpose;
+import com.utils.exceptions.ApiException;
 import com.verification.entity.OtpEntity;
 import com.verification.repo.OtpRepo;
 import com.verification.util.OtpGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.time.Instant;
+import java.util.UUID;
+
 @Slf4j
 @Service
 public class OtpService {
@@ -46,53 +48,49 @@ public class OtpService {
     public boolean isUser(String email) {
         return userRepo.findByEmail(email).isPresent();
     }
+
     @Transactional
-    public void createOtp(String otp, String email) {
-        String code = passwordEncoder.encode(otp);
-        var otpEntity = new OtpEntity(
-                email,
-                code,
-                Instant.now(),
-                Instant.now().plusSeconds(otpCodeExpirationSeconds),
-                false);
+    public void sendOtp(String email, VerificationPurpose purpose) {
+        if(purpose == VerificationPurpose.REGISTER && userRepo.findByEmail(email).isPresent()) {
+            throw new ApiException(Errors.EMAIL_ALREADY_EXISTS, "email");
+        }
+        if(purpose == VerificationPurpose.RESET_PASSWORD && !userRepo.findByEmail(email).isPresent()) {
+            throw new ApiException(Errors.INVALID_EMAIL, "email");
+        }
+        String otp = otpGenerator.generateOtp();
+        log.info("OTP for {} = {}", email, otp); // только для dev
+        var otpEntity = OtpEntity.builder()
+                .email(email)
+                .code(passwordEncoder.encode(otp))
+                .createdAt(Instant.now())
+                .expiredAt(Instant.now().plusSeconds(otpCodeExpirationSeconds))
+                .otpUsed(false)
+                .tokenVerified(false)
+                .purpose(purpose)
+                .build();
         otpRepo.save(otpEntity);
-    }
-
-    public void verifyEmail(String email) {
-        if(userRepo.findByEmail(email).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "email already exist");
-        }
-        String otp = otpGenerator.generateOtp();
-        log.info("OTP for {} = {}", email, otp); // только для dev
-        createOtp(otp, email);
         //TODO параметры
         //mailSender.sendEmail(mailProperties.getSendFrom(), null, null);
     }
 
-    public void resetPassword(String email) {
-        if (!userRepo.findByEmail(email).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email not found");
-        }
-        String otp = otpGenerator.generateOtp();
-        log.info("OTP for {} = {}", email, otp); // только для dev
-        createOtp(otp, email);
-        //TODO параметры
-        //mailSender.sendEmail(mailProperties.getSendFrom(), null, null);
-    }
     @Transactional
-    public void validateOtp(String email, String otp) {
-        var code = otpRepo.findTopByEmailAndUsedFalseOrderByCreatedAtDesc(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Otp not found"));
-
-        if (code.getExpiredAt().isBefore(Instant.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Otp is expired");
-        }
+    public UUID validateOtp(String email, String otp) {
+        OtpEntity code = otpRepo
+                .findTopByEmailAndOtpUsedFalseOrderByCreatedAtDesc(email)
+                .orElseThrow(() -> new ApiException(Errors.OTP_CODE_NOT_FOUND, "otp"));
 
         if (!passwordEncoder.matches(otp, code.getCode())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Otp");
+            throw new ApiException(Errors.INVALID_OTP, "otp");
         }
-        code.setUsed(true);
+
+        if (code.getExpiredAt().isBefore(Instant.now())) {
+            throw new ApiException(Errors.OTP_CODE_IS_EXPIRED, "otp");
+        }
+        code.setOtpUsed(true);
+        code.setTokenVerified(true);
+        UUID token = UUID.randomUUID();
+        code.setVerificationToken(token);
         otpRepo.save(code);
+        return token;
     }
-    //TODO Как обойти вопрос создания нового пароля сразу через postman в обход OTP
 }

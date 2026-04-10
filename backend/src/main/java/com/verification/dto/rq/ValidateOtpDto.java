@@ -5,13 +5,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-@Schema(description = "Dto для проверки существования пользователя")
-public record OtpCodeDto(
+@Schema(description = "Dto для проверки OTP")
+public record ValidateOtpDto(
         @Email(message = "Email должен содержать корректный адрес")
-        @NotBlank @Size(min = 4)
+        @NotBlank(message = "Email обязателен")
         String email,
 
-        @NotBlank
+        @NotBlank(message = "OTP обязателен")
+        @Size(min = 6, max = 6, message = "Некорректный OTP")
         String otp
-)
-{}
+) {}

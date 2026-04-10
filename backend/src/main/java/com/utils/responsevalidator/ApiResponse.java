@@ -29,7 +29,7 @@ public class ApiResponse<Rs> {
     private Instant timestamp;
 
     @Schema(description = "Статус код ошибки")
-    private List<ApiError> statusError;
+    private List<ApiError> errors;
 
     public static <Rs> ApiResponse<Rs> success(String message, Rs data) {
         return ApiResponse.<Rs>builder()
@@ -40,13 +40,12 @@ public class ApiResponse<Rs> {
                 .build();
     }
 
-    //TODO Убрать status error?
-    public static <Rs> ApiResponse<Rs> error(String message, List<ApiError> statusError) {
+    public static <Rs> ApiResponse<Rs> error(String message, List<ApiError> errors) {
         return ApiResponse.<Rs>builder()
                 .success(false)
                 .message(message)
                 .timestamp(Instant.now())
-                .statusError(statusError)
+                .errors(errors != null ? errors : List.of())
                 .build();
     }
 }

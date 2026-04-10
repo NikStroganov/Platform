@@ -1,17 +1,15 @@
 package com.utils.exceptions;
 
+import com.utils.enums.Errors;
 import com.utils.responsevalidator.ApiError;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.utils.responsevalidator.ApiResponse;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,21 +44,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body(ApiResponse.error(
-                        "Ошибка валидации входных данных в URL/query-параметрах",
+                        Errors.VALIDATION_ERROR.getMessage(),
                         errors
                 ));
     }
-
-//    @ExceptionHandler(HttpMessageNotReadableException.class)
-//    public ResponseEntity<ApiResponse<Void>> handleNotReadable(HttpMessageNotReadableException ex) {
-//        List<ApiError> errors =
-//        return ResponseEntity
-//                .badRequest()
-//                .body(ApiResponse.error(
-//                        "Некорректное тело запроса",
-//                        400
-//                ));
-//    }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleEntityNotFoundEx(EntityNotFoundException ex) {
@@ -68,17 +55,25 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(
                         ex.getMessage(),
-                        null
+                        List.of()
+                ));
+    }
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ApiResponse<Object>> handleApiException(ApiException ex) {
+        return ResponseEntity
+                .status(ex.getError().getStatus())
+                .body(ApiResponse.error(
+                        ex.getError().getMessage(),
+                        ex.getErrors()
                 ));
     }
 
-    @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<ApiResponse<Object>> handleResponseStatusException(ResponseStatusException ex) {
+    public ResponseEntity<ApiResponse<Object>> handleUnknown(Exception ex) {
         return ResponseEntity
-                .status(ex.getStatusCode())
+                .status(Errors.INTERNAL_SYSTEM_ERROR.getStatus())
                 .body(ApiResponse.error(
-                        ex.getReason(),
-                        null
+                        Errors.INTERNAL_SYSTEM_ERROR.getMessage(),
+                        List.of()
                 ));
     }
 }

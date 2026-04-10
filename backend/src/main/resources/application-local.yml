@@ -1,0 +1,45 @@
+server:
+  port: 7070
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: org.postgresql.Driver
+
+  mail:
+    host: smtp.example.com   # SMTP сервер
+    port: 587                # порт (обычно 587 для TLS)
+    username: your_email@example.com
+    password: your_password
+    protocol: smtp
+    tls: true
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update   # update / create-drop / validate / none
+    show-sql: true       # логировать SQL-запросы в консоль
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+jwt:
+  tokens:
+    access-expiration: 300
+    refresh-expiration: 604800
+  rsa:
+    private-key-path: classpath:keys/private_pkcs8.pem
+    public-key-path: classpath:keys/public_pkcs8.pem
+
+otp:
+  code:
+    otpCodeExpiration: 120
+
+logging:
+  level:
+    org.springframework.security: DEBUG

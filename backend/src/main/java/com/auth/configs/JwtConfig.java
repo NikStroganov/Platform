@@ -19,7 +19,7 @@ import java.security.interfaces.RSAPublicKey;
 public class JwtConfig {
 
     //DONE Прописать ключи в application.properties (yml)
-    //DONE Добавить конвертацию из application.yml в RSAPrivateKey / RSAPublicKey
+    //DONE Добавить конвертацию из application-prod.yml в RSAPrivateKey / RSAPublicKey
 
     private final RSAPrivateKey privateKey; //для подписи токена
     private final RSAPublicKey publicKey; //проверка подписи
