@@ -1,19 +1,16 @@
-const ACCESS_TOKEN_KEY = "access_token";
+import type { AuthTokens } from "@/features/auth/api/auth-types";
+import {
+  clearAuthTokens,
+  getAccessToken,
+  getRefreshToken,
+  removeAccessToken,
+  setAuthTokens,
+} from "@/features/auth/lib/token-storage";
 
-export function getAccessToken(): string | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
+export { getAccessToken, getRefreshToken, removeAccessToken, clearAuthTokens, setAuthTokens };
 
-  return window.localStorage.getItem(ACCESS_TOKEN_KEY);
-}
-
-export function removeAccessToken(): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.localStorage.removeItem(ACCESS_TOKEN_KEY);
+export function saveAuthTokens(tokens: AuthTokens): void {
+  setAuthTokens(tokens);
 }
 
 export function isAuthenticated(): boolean {

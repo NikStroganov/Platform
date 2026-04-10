@@ -13,6 +13,8 @@ export type AppTextFieldProps = TextFieldProps;
 function PasswordToggleIcon({ visible }: { visible: boolean }) {
   return (
     <Image
+      width={16}
+      height={16}
       src={visible ? "/eye-on.svg" : "/eye-off.svg"}
       alt=""
       aria-hidden="true"
@@ -55,7 +57,14 @@ export function AppTextField({
   const generatedAdornment =
     error || isPasswordField ? (
       <InputAdornment position="end">
-        <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, flex: "none" }}>
+        <Box
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
+            flex: "none",
+          }}
+        >
           {existingAdornment}
           {error ? <ErrorStateIcon /> : null}
           {isPasswordField ? (

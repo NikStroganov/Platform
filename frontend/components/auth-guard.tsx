@@ -1,25 +1,68 @@
 "use client";
 
-import { ReactNode, useEffect, useSyncExternalStore } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { isAuthenticated } from "@/lib/auth";
+import { refreshSession } from "@/features/auth/api/auth-client";
+import { clearAuthTokens, getAccessToken, getRefreshToken, setAuthTokens } from "@/lib/auth";
 
 type AuthGuardProps = {
   children: ReactNode;
 };
 
 const PUBLIC_PATHS = new Set(["/auth"]);
-const emptySubscribe = () => () => undefined;
+type GuardState = "checking" | "authed" | "guest";
 
 export function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const isClient = useSyncExternalStore(emptySubscribe, () => true, () => false);
-  const authed = isClient ? isAuthenticated() : false;
+  const [guardState, setGuardState] = useState<GuardState>("checking");
   const isPublicPath = PUBLIC_PATHS.has(pathname);
-  const shouldRedirectToAuth = isClient && !authed && !isPublicPath;
-  const shouldRedirectToHome = isClient && authed && pathname === "/auth";
+  const shouldRedirectToAuth = guardState === "guest" && !isPublicPath;
+  const shouldRedirectToHome = guardState === "authed" && pathname === "/auth";
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function verifySession() {
+      const accessToken = getAccessToken();
+      if (accessToken) {
+        if (!isCancelled) {
+          setGuardState("authed");
+        }
+
+        return;
+      }
+
+      const refreshToken = getRefreshToken();
+      if (!refreshToken) {
+        if (!isCancelled) {
+          setGuardState("guest");
+        }
+
+        return;
+      }
+
+      try {
+        const tokens = await refreshSession({ refreshToken });
+        setAuthTokens(tokens);
+        if (!isCancelled) {
+          setGuardState("authed");
+        }
+      } catch {
+        clearAuthTokens();
+        if (!isCancelled) {
+          setGuardState("guest");
+        }
+      }
+    }
+
+    void verifySession();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [pathname]);
 
   useEffect(() => {
     if (shouldRedirectToAuth) {
@@ -32,7 +75,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
     }
   }, [router, shouldRedirectToAuth, shouldRedirectToHome]);
 
-  if (!isClient || shouldRedirectToAuth || shouldRedirectToHome) {
+  if (guardState === "checking" || shouldRedirectToAuth || shouldRedirectToHome) {
     return null;
   }
 

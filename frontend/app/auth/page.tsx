@@ -1,3 +1,5 @@
+import { AuthTabs } from "@/features/auth/ui";
+
 import { AuthContainer } from "./_components/AuthContainer";
 
 export default function AuthPage() {
@@ -7,9 +9,8 @@ export default function AuthPage() {
       style={{ backgroundImage: "url('/auth-bg.webp')" }}
     >
       <AuthContainer>
-        <span>Введите почту</span>
+        <AuthTabs />
       </AuthContainer>
     </main>
-
   );
 }
