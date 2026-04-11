@@ -19,7 +19,7 @@ type ApiEnvelope<TData> = {
   errors?: ApiError[];
 };
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://backend.careit.tech";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://backend.careit.tech";
 const authApi = new Api({ baseURL: API_BASE_URL });
 
 function getMessage(payload: ApiEnvelope<unknown> | undefined, fallback: string): string {
