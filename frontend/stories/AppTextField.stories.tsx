@@ -36,7 +36,7 @@ const meta = {
 } satisfies Meta<typeof AppTextField>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof AppTextField>;
 
 export const Default: Story = {};
 

@@ -187,10 +187,6 @@ export const appTheme = createTheme({
           "&.Mui-disabled .MuiOutlinedInput-notchedOutline": {
             borderColor: inputTokens.border,
           },
-          "& .MuiSvgIcon-root": {
-            fontSize: 20,
-            color: inputTokens.adornment,
-          },
           "& .MuiOutlinedInput-input.MuiInputBase-inputAdornedEnd": {
             paddingRight: 8,
           },

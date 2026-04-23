@@ -6,32 +6,20 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField, { type TextFieldProps } from "@mui/material/TextField";
-import Image from "next/image";
+
+import { Icon } from "@/components/shared/icon";
+import EyeOffIcon from "@/components/shared/icon/icons/eye-off.svg";
+import EyeOnIcon from "@/components/shared/icon/icons/eye-on.svg";
+import InputErrorIcon from "@/components/shared/icon/icons/input-error.svg";
 
 export type AppTextFieldProps = TextFieldProps;
 
 function PasswordToggleIcon({ visible }: { visible: boolean }) {
-  return (
-    <Image
-      width={16}
-      height={16}
-      src={visible ? "/eye-on.svg" : "/eye-off.svg"}
-      alt=""
-      aria-hidden="true"
-    />
-  );
+  return <Icon component={visible ? EyeOnIcon : EyeOffIcon} sx={{ fontSize: 16 }} />;
 }
 
 function ErrorStateIcon() {
-  return (
-    <Image
-      src="/input-error.svg"
-      alt=""
-      width={16}
-      height={16}
-      aria-hidden="true"
-    />
-  );
+  return <Icon component={InputErrorIcon} sx={{ fontSize: 16 }} />;
 }
 
 export function AppTextField({
