@@ -2,6 +2,7 @@ package com.auth.user.service;
 
 import com.email.services.EmailService;
 import com.auth.user.dto.rs.AuthResponseDto;
+import com.auth.user.dto.rs.CurrentUserProfileDto;
 import com.auth.user.entity.UserEntity;
 import com.auth.user.repo.UserRepo;
 import com.auth.user.roles.Role;
@@ -145,4 +146,16 @@ public class UserService {
         return new AuthResponseDto(accessToken, refreshToken);
     }
 //TODO проработать механизм отправки письма - где хранится адрес отправителя, сформировать API тела с токеном
+
+    public CurrentUserProfileDto getCurrentUserProfile(String email) {
+        var user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new ApiException(Errors.USER_NOT_FOUND));
+
+        return new CurrentUserProfileDto(
+                user.getId(),
+                user.getEmail(),
+                user.getRole(),
+                user.getCreatedAt()
+        );
+    }
 }
