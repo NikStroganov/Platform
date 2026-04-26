@@ -19,7 +19,7 @@ type OtpTabProps = {
   errorStatusCode?: number | null;
   isSubmitting: boolean;
   onSubmitOtp: (otp: string) => Promise<void>;
-  onResendOtp: () => Promise<void>;
+  onResendOtp: () => Promise<boolean>;
   onBack: () => void;
 };
 
@@ -115,7 +115,11 @@ export function OtpTab({
   }, [errorStatusCode, isSubmitting, otp]);
 
   async function handleResend() {
-    await onResendOtp();
+    const isSuccess = await onResendOtp();
+    if (!isSuccess) {
+      return;
+    }
+
     resetOtpInput();
     setResendSeconds(RESEND_DELAY_SECONDS);
     setHideServerError(false);

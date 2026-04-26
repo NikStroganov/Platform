@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { type FormEvent, useState } from "react";
+import { type SyntheticEvent, useState } from "react";
 
 import { AuthContainer } from "@/app/auth/_components/AuthContainer";
 import { AppButton } from "@/components/ui/app-button";
@@ -27,7 +27,7 @@ export function LoginTab({
 }: LoginTabProps) {
   const [password, setPassword] = useState("");
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SyntheticEvent<HTMLFormElement, SubmitEvent>) {
     event.preventDefault();
     await onSubmit(password);
   }

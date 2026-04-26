@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { type FormEvent, useMemo, useState } from "react";
+import { type SyntheticEvent, useMemo, useState } from "react";
 
 import { AuthContainer } from "@/app/auth/_components/AuthContainer";
 import { Icon } from "@/components/shared/icon";
@@ -71,7 +71,7 @@ export function RegisterPasswordTab({
     Boolean(confirmPassword);
   const showWeakPasswordError = passwordTouched && !isPasswordValid;
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SyntheticEvent<HTMLFormElement, SubmitEvent>) {
     event.preventDefault();
     setPasswordTouched(true);
     setConfirmPasswordTouched(true);

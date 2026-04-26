@@ -170,11 +170,12 @@ export function useAuthFlow() {
     [email, handleSuccessAuth, verificationToken],
   );
 
-  const resendRegisterOtp = useCallback(async () => {
+  const resendRegisterOtp = useCallback(async (): Promise<boolean> => {
     setState({ isSubmitting: true, errorMessage: null, fieldErrors: {} });
     try {
       await sendOtp(email, "REGISTER");
       setState(initialState());
+      return true;
     } catch (error) {
       const authError = toAuthApiError(error);
       setState({
@@ -182,6 +183,7 @@ export function useAuthFlow() {
         errorMessage: authError.message,
         fieldErrors: authError.fieldErrors,
       });
+      return false;
     }
   }, [email]);
 
@@ -263,11 +265,12 @@ export function useAuthFlow() {
     [email, handleSuccessAuth, verificationToken],
   );
 
-  const resendResetOtp = useCallback(async () => {
+  const resendResetOtp = useCallback(async (): Promise<boolean> => {
     setState({ isSubmitting: true, errorMessage: null, fieldErrors: {} });
     try {
       await sendOtp(email, "RESET_PASSWORD");
       setState(initialState());
+      return true;
     } catch (error) {
       const authError = toAuthApiError(error);
       setState({
@@ -275,6 +278,7 @@ export function useAuthFlow() {
         errorMessage: authError.message,
         fieldErrors: authError.fieldErrors,
       });
+      return false;
     }
   }, [email]);
 
