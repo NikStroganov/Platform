@@ -14,7 +14,6 @@ type ResetOtpTabProps = {
   otpError?: string;
   errorMessage: string | null;
   isSubmitting: boolean;
-  isOtpComplete: boolean;
   onOtpChange: (value: string) => void;
   onResendOtp: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void | Promise<void>;
@@ -27,7 +26,6 @@ export function ResetOtpTab({
   otpError,
   errorMessage,
   isSubmitting,
-  isOtpComplete,
   onOtpChange,
   onResendOtp,
   onSubmit,
@@ -36,8 +34,8 @@ export function ResetOtpTab({
   return (
     <AuthContainer showBackButton onBack={onBack} backButtonDisabled={isSubmitting}>
       <section className="w-full max-w-[420px]">
-        <h1 className="text-center text-2xl font-semibold mb-2">Восстановление пароля</h1>
-        <p className="text-center text-sm text-gray-600 mb-6">Код отправлен на {email}</p>
+        <h1 className="text-center text-2xl font-semibold mb-2">Забыли пароль?</h1>
+        <p className="text-center text-sm mb-6">Введите код из письма. Отправили его на&nbsp;{email}</p>
         <form className="flex flex-col gap-4" onSubmit={onSubmit}>
           <OtpInput
             value={otp}
@@ -46,11 +44,7 @@ export function ResetOtpTab({
             autoFocus
             aria-label="OTP code for password reset"
           />
-          {otpError ? <p className="text-sm text-red-600">{otpError}</p> : null}
           <FlowError message={errorMessage} />
-          <AppButton type="submit" fullWidth disabled={isSubmitting || !isOtpComplete}>
-            {isSubmitting ? "Проверяем..." : "Подтвердить OTP"}
-          </AppButton>
           <AppButton type="button" variant="text" onClick={onResendOtp} disabled={isSubmitting}>
             Отправить код еще раз
           </AppButton>

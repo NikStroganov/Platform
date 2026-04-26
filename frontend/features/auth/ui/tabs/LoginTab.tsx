@@ -45,7 +45,6 @@ export function LoginTab({
             error={Boolean(passwordError)}
             helperText={passwordError}
             autoComplete="current-password"
-            required
           />
           <FlowError message={errorMessage} />
           <AppButton

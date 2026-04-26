@@ -9,7 +9,6 @@ import { LoginTab } from "./tabs/LoginTab";
 import { RegisterOtpTab } from "./tabs/RegisterOtpTab";
 import { RegisterPasswordTab } from "./tabs/RegisterPasswordTab";
 import { ResetOtpTab } from "./tabs/ResetOtpTab";
-import { ResetPasswordTab } from "./tabs/ResetPasswordTab";
 
 export function AuthTabs() {
   const { view, email, state, actions } = useAuthFlow();
@@ -21,8 +20,10 @@ export function AuthTabs() {
   const [registerOtpResendSeconds, setRegisterOtpResendSeconds] = useState(30);
   const autoSubmittedOtpRef = useRef<string | null>(null);
 
-  const passwordMismatch = password && confirmPassword && password !== confirmPassword;
-  const showPasswordMismatch = confirmPasswordTouched && Boolean(passwordMismatch);
+  const passwordMismatch =
+    password && confirmPassword && password !== confirmPassword;
+  const showPasswordMismatch =
+    confirmPasswordTouched && Boolean(passwordMismatch);
   const hasMinLength = password.length >= 6;
   const hasUppercase = /[A-Z]/.test(password);
   const hasDigit = /\d/.test(password);
@@ -30,7 +31,7 @@ export function AuthTabs() {
   const isOtpComplete = otp.length === 6;
 
   useEffect(() => {
-    if (view !== "registerOtp") {
+    if (view !== "registerOtp" && view !== "resetOtp") {
       autoSubmittedOtpRef.current = null;
       return;
     }
@@ -48,8 +49,30 @@ export function AuthTabs() {
     }
 
     autoSubmittedOtpRef.current = submitKey;
-    void actions.verifyRegisterOtp(otp);
+    if (view === "registerOtp") {
+      void actions.verifyRegisterOtp(otp);
+      return;
+    }
+
+    void actions.verifyResetOtp(otp);
   }, [actions, isOtpComplete, otp, state.isSubmitting, view]);
+
+  useEffect(() => {
+    if (view !== "resetOtp" || state.isSubmitting) {
+      return;
+    }
+
+    const statusCode = state.errorStatusCode ?? null;
+    if (!statusCode || statusCode < 400 || statusCode >= 500 || !otp) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setOtp("");
+    }, 0);
+    autoSubmittedOtpRef.current = null;
+    return () => window.clearTimeout(timeoutId);
+  }, [otp, state.errorStatusCode, state.isSubmitting, view]);
 
   useEffect(() => {
     if (view !== "registerOtp") {
@@ -110,7 +133,9 @@ export function AuthTabs() {
 
   async function submitResetPassword(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (passwordMismatch) {
+    setConfirmPasswordTouched(true);
+
+    if (passwordMismatch || !isRegisterPasswordValid) {
       return;
     }
 
@@ -119,7 +144,15 @@ export function AuthTabs() {
 
   async function resendRegisterOtp() {
     await actions.resendRegisterOtp();
+    setOtp("");
+    autoSubmittedOtpRef.current = null;
     setRegisterOtpResendSeconds(30);
+  }
+
+  async function resendResetOtp() {
+    await actions.resendResetOtp();
+    setOtp("");
+    autoSubmittedOtpRef.current = null;
   }
 
   if (view === "email") {
@@ -169,6 +202,10 @@ export function AuthTabs() {
   if (view === "registerPassword") {
     return (
       <RegisterPasswordTab
+        title="Придумайте пароль"
+        description="Чтобы зарегистрироваться"
+        buttonText="Продолжить"
+        buttonBusyText="Создаем аккаунт..."
         password={password}
         confirmPassword={confirmPassword}
         passwordError={state.fieldErrors.password}
@@ -201,9 +238,8 @@ export function AuthTabs() {
         otpError={state.fieldErrors.otp}
         errorMessage={state.errorMessage}
         isSubmitting={state.isSubmitting}
-        isOtpComplete={isOtpComplete}
         onOtpChange={setOtp}
-        onResendOtp={() => void actions.resendResetOtp()}
+        onResendOtp={() => void resendResetOtp()}
         onSubmit={submitResetOtp}
         onBack={actions.changeEmail}
       />
@@ -211,16 +247,28 @@ export function AuthTabs() {
   }
 
   return (
-    <ResetPasswordTab
-      email={email}
+    <RegisterPasswordTab
+      title="Придумайте новый пароль"
+      buttonText="Продолжить"
+      buttonBusyText="Подождите..."
       password={password}
       confirmPassword={confirmPassword}
       passwordError={state.fieldErrors.password}
-      passwordMismatch={Boolean(passwordMismatch)}
+      showPasswordMismatch={showPasswordMismatch}
+      hasMinLength={hasMinLength}
+      hasUppercase={hasUppercase}
+      hasDigit={hasDigit}
       errorMessage={state.errorMessage}
       isSubmitting={state.isSubmitting}
+      canSubmit={
+        !state.isSubmitting &&
+        !showPasswordMismatch &&
+        isRegisterPasswordValid &&
+        Boolean(confirmPassword)
+      }
       onPasswordChange={setPassword}
       onConfirmPasswordChange={setConfirmPassword}
+      onConfirmPasswordBlur={() => setConfirmPasswordTouched(true)}
       onSubmit={submitResetPassword}
       onBack={actions.changeEmail}
     />

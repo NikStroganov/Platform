@@ -28,6 +28,7 @@ type SubmitState = {
   isSubmitting: boolean;
   errorMessage: string | null;
   fieldErrors: FieldErrors;
+  errorStatusCode?: number | null;
 };
 
 const PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
@@ -37,6 +38,7 @@ function initialState(): SubmitState {
     isSubmitting: false,
     errorMessage: null,
     fieldErrors: {},
+    errorStatusCode: null,
   };
 }
 
@@ -121,6 +123,7 @@ export function useAuthFlow() {
           isSubmitting: false,
           errorMessage: authError.message,
           fieldErrors: authError.fieldErrors,
+          errorStatusCode: authError.statusCode,
         });
       }
     },

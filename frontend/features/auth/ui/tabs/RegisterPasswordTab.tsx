@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { type FormEvent } from "react";
 
@@ -11,7 +11,13 @@ import { AppTextField } from "@/components/ui/app-text-field";
 
 import { FlowError } from "./FlowError";
 
+const CYRILLIC_PATTERN = /[А-Яа-яЁё]/g;
+
 type RegisterPasswordTabProps = {
+  title: string;
+  description?: string;
+  buttonText: string;
+  buttonBusyText: string;
   password: string;
   confirmPassword: string;
   passwordError?: string;
@@ -30,6 +36,10 @@ type RegisterPasswordTabProps = {
 };
 
 export function RegisterPasswordTab({
+  title,
+  description,
+  buttonText,
+  buttonBusyText,
   password,
   confirmPassword,
   passwordError,
@@ -46,17 +56,27 @@ export function RegisterPasswordTab({
   onSubmit,
   onBack,
 }: RegisterPasswordTabProps) {
+  function stripCyrillic(value: string): string {
+    return value.replace(CYRILLIC_PATTERN, "");
+  }
+
   return (
     <AuthContainer showBackButton onBack={onBack} backButtonDisabled={isSubmitting}>
       <section className="w-full max-w-[420px]">
-        <h1 className="text-center text-2xl font-semibold mb-2">Придумайте пароль</h1>
-        <p className="text-center text-sm text-gray-600 mb-6">Чтобы зарегистрироваться</p>
+        <h1
+          className={`text-center text-2xl font-semibold ${description ? "mb-2" : "mb-5"}`}
+        >
+          {title}
+        </h1>
+        {description ? (
+          <p className="text-center text-sm text-gray-600 mb-6">{description}</p>
+        ) : null}
         <form className="flex flex-col gap-4" onSubmit={onSubmit}>
           <AppTextField
             type="password"
             label="Пароль"
             value={password}
-            onChange={(event) => onPasswordChange(event.target.value)}
+            onChange={(event) => onPasswordChange(stripCyrillic(event.target.value))}
             error={Boolean(passwordError)}
             helperText={passwordError}
             autoComplete="new-password"
@@ -66,7 +86,9 @@ export function RegisterPasswordTab({
             type="password"
             label="Повторите пароль"
             value={confirmPassword}
-            onChange={(event) => onConfirmPasswordChange(event.target.value)}
+            onChange={(event) =>
+              onConfirmPasswordChange(stripCyrillic(event.target.value))
+            }
             onBlur={onConfirmPasswordBlur}
             error={showPasswordMismatch}
             helperText={showPasswordMismatch ? "Пароли не совпадают." : ""}
@@ -76,7 +98,9 @@ export function RegisterPasswordTab({
           <div className="flex flex-col gap-2 text-sm">
             <div className="flex items-center gap-2">
               <Icon component={hasMinLength ? CircleCheckIcon : CircleCrossIcon} />
-              <p className={hasMinLength ? "text-[#52C41A]" : "text-[#c4c2be]"}>6 символов</p>
+              <p className={hasMinLength ? "text-[#52C41A]" : "text-[#c4c2be]"}>
+                6 символов
+              </p>
             </div>
             <div className="flex items-center gap-2">
               <Icon component={hasUppercase ? CircleCheckIcon : CircleCrossIcon} />
@@ -86,12 +110,14 @@ export function RegisterPasswordTab({
             </div>
             <div className="flex items-center gap-2">
               <Icon component={hasDigit ? CircleCheckIcon : CircleCrossIcon} />
-              <p className={hasDigit ? "text-[#52C41A]" : "text-[#c4c2be]"}>Одна цифра</p>
+              <p className={hasDigit ? "text-[#52C41A]" : "text-[#c4c2be]"}>
+                Одна цифра
+              </p>
             </div>
           </div>
           <FlowError message={errorMessage} />
           <AppButton type="submit" fullWidth disabled={!canSubmit}>
-            {isSubmitting ? "Создаем аккаунт..." : "Зарегистрироваться"}
+            {isSubmitting ? buttonBusyText : buttonText}
           </AppButton>
         </form>
       </section>

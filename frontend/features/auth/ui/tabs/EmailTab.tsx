@@ -50,7 +50,7 @@ export function EmailTab({
         </form>
         <p className="text-xs text-[#808080] font-medium mt-1.5">
           Нажимая кнопку «Войти», вы даете свое согласие на обработку
-          персональных данных согласно
+          персональных данных согласно&nbsp;
           <a href="http://example.com/terms" className="text-[#1677ff]">
             оферте
           </a>
