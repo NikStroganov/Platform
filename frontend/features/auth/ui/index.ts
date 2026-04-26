@@ -1,0 +1,2 @@
+export { AuthTabs } from "./AuthTabs";
+

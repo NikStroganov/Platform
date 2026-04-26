@@ -116,37 +116,7 @@
         }
       }
     },
-    "/api/v1/verify/verifyEmail": {
-      "post": {
-        "tags": [
-          "otp-controller"
-        ],
-        "operationId": "verifyEmail",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserEmailDto"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseVoid"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/verify/send-confirm-code": {
+    "/api/v1/verify/validateOtp": {
       "post": {
         "tags": [
           "otp-controller"
@@ -156,7 +126,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/OtpCodeDto"
+                "$ref": "#/components/schemas/ValidateOtpDto"
               }
             }
           },
@@ -168,7 +138,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseVoid"
+                  "$ref": "#/components/schemas/ApiResponseVerificationToken"
                 }
               }
             }
@@ -176,7 +146,7 @@
         }
       }
     },
-    "/api/v1/verify/reset-password": {
+    "/api/v1/verify/sendOtp": {
       "post": {
         "tags": [
           "otp-controller"
@@ -186,7 +156,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserEmailDto"
+                "$ref": "#/components/schemas/SendOtpDto"
               }
             }
           },
@@ -300,7 +270,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserDto"
+                "$ref": "#/components/schemas/UserRegisterDto"
               }
             }
           },
@@ -330,7 +300,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserDto"
+                "$ref": "#/components/schemas/UserRegisterDto"
               }
             }
           },
@@ -495,7 +465,7 @@
             "description": "Время запроса",
             "format": "date-time"
           },
-          "statusError": {
+          "errors": {
             "type": "array",
             "description": "Статус код ошибки",
             "items": {
@@ -505,19 +475,85 @@
         },
         "description": "Ответы для операций с профилем пользователя"
       },
-      "UserEmailDto": {
+      "ValidateOtpDto": {
         "required": [
-          "email"
+          "email",
+          "otp"
         ],
         "type": "object",
         "properties": {
           "email": {
-            "maxLength": 2147483647,
-            "minLength": 4,
+            "type": "string"
+          },
+          "otp": {
+            "maxLength": 6,
+            "minLength": 6,
             "type": "string"
           }
         },
-        "description": "Dto для проверки существования пользователя"
+        "description": "Dto для проверки OTP"
+      },
+      "ApiResponseVerificationToken": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Успешность операции"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение с инофрмацией о результате операции"
+          },
+          "data": {
+            "$ref": "#/components/schemas/VerificationToken"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Время запроса",
+            "format": "date-time"
+          },
+          "errors": {
+            "type": "array",
+            "description": "Статус код ошибки",
+            "items": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Ответы для операций с профилем пользователя"
+      },
+      "VerificationToken": {
+        "required": [
+          "verificationToken"
+        ],
+        "type": "object",
+        "properties": {
+          "verificationToken": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "description": "Блок с DTO"
+      },
+      "SendOtpDto": {
+        "required": [
+          "email",
+          "purpose"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "REGISTER",
+              "RESET_PASSWORD"
+            ]
+          }
+        },
+        "description": "Dto для отправки OTP"
       },
       "ApiResponseVoid": {
         "type": "object",
@@ -539,7 +575,7 @@
             "description": "Время запроса",
             "format": "date-time"
           },
-          "statusError": {
+          "errors": {
             "type": "array",
             "description": "Статус код ошибки",
             "items": {
@@ -549,19 +585,13 @@
         },
         "description": "Ответы для операций с профилем пользователя"
       },
-      "OtpCodeDto": {
+      "UserEmailDto": {
         "required": [
-          "email",
-          "otp"
+          "email"
         ],
         "type": "object",
         "properties": {
           "email": {
-            "maxLength": 2147483647,
-            "minLength": 4,
-            "type": "string"
-          },
-          "otp": {
             "type": "string"
           }
         },
@@ -586,7 +616,7 @@
             "description": "Время запроса",
             "format": "date-time"
           },
-          "statusError": {
+          "errors": {
             "type": "array",
             "description": "Статус код ошибки",
             "items": {
@@ -605,25 +635,26 @@
         },
         "description": "Блок с DTO"
       },
-      "UserDto": {
+      "UserRegisterDto": {
         "required": [
           "email",
-          "password"
+          "password",
+          "verificationToken"
         ],
         "type": "object",
         "properties": {
           "email": {
-            "maxLength": 2147483647,
-            "minLength": 4,
             "type": "string"
           },
           "password": {
-            "maxLength": 2147483647,
-            "minLength": 5,
+            "pattern": "^(?=.*[A-Z])(?=.*\\d).{6,}$",
             "type": "string"
+          },
+          "verificationToken": {
+            "type": "string",
+            "format": "uuid"
           }
-        },
-        "description": "Dto для авторизации"
+        }
       },
       "ApiResponseAuthResponseDto": {
         "type": "object",
@@ -644,7 +675,7 @@
             "description": "Время запроса",
             "format": "date-time"
           },
-          "statusError": {
+          "errors": {
             "type": "array",
             "description": "Статус код ошибки",
             "items": {
@@ -677,6 +708,22 @@
           }
         },
         "description": "Dto для запроса нового access токена по refresh токену"
+      },
+      "UserDto": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "description": "Dto для авторизации"
       }
     }
   }
