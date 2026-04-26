@@ -216,6 +216,7 @@ export function useAuthFlow() {
           isSubmitting: false,
           errorMessage: authError.message,
           fieldErrors: authError.fieldErrors,
+          errorStatusCode: authError.statusCode,
         });
       }
     },

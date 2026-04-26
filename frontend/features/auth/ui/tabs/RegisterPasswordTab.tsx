@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { type FormEvent } from "react";
+import { type FormEvent, useMemo, useState } from "react";
 
 import { AuthContainer } from "@/app/auth/_components/AuthContainer";
 import { Icon } from "@/components/shared/icon";
@@ -12,52 +12,68 @@ import { AppTextField } from "@/components/ui/app-text-field";
 import { FlowError } from "./FlowError";
 
 const CYRILLIC_PATTERN = /[А-Яа-яЁё]/g;
+const HAS_UPPERCASE_PATTERN = /[A-Z]/;
+const HAS_DIGIT_PATTERN = /\d/;
 
 type RegisterPasswordTabProps = {
   title: string;
   description?: string;
   buttonText: string;
   buttonBusyText: string;
-  password: string;
-  confirmPassword: string;
   passwordError?: string;
-  showPasswordMismatch: boolean;
-  hasMinLength: boolean;
-  hasUppercase: boolean;
-  hasDigit: boolean;
   errorMessage: string | null;
   isSubmitting: boolean;
-  canSubmit: boolean;
-  onPasswordChange: (value: string) => void;
-  onConfirmPasswordChange: (value: string) => void;
-  onConfirmPasswordBlur: () => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void | Promise<void>;
+  onSubmit: (password: string) => Promise<void>;
   onBack: () => void;
 };
+
+function stripCyrillic(value: string): string {
+  return value.replace(CYRILLIC_PATTERN, "");
+}
 
 export function RegisterPasswordTab({
   title,
   description,
   buttonText,
   buttonBusyText,
-  password,
-  confirmPassword,
   passwordError,
-  showPasswordMismatch,
-  hasMinLength,
-  hasUppercase,
-  hasDigit,
   errorMessage,
   isSubmitting,
-  canSubmit,
-  onPasswordChange,
-  onConfirmPasswordChange,
-  onConfirmPasswordBlur,
   onSubmit,
   onBack,
 }: RegisterPasswordTabProps) {
-  function stripCyrillic(value: string): string {
-    return value.replace(CYRILLIC_PATTERN, "");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
+
+  const hasMinLength = password.length >= 6;
+  const hasUppercase = HAS_UPPERCASE_PATTERN.test(password);
+  const hasDigit = HAS_DIGIT_PATTERN.test(password);
+  const isPasswordValid = hasMinLength && hasUppercase && hasDigit;
+
+  const showPasswordMismatch = useMemo(() => {
+    if (!confirmPasswordTouched) {
+      return false;
+    }
+
+    return Boolean(password && confirmPassword && password !== confirmPassword);
+  }, [confirmPassword, confirmPasswordTouched, password]);
+
+  const canSubmit =
+    !isSubmitting &&
+    !showPasswordMismatch &&
+    isPasswordValid &&
+    Boolean(confirmPassword);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setConfirmPasswordTouched(true);
+
+    if (!canSubmit) {
+      return;
+    }
+
+    await onSubmit(password);
   }
 
   return (
@@ -71,12 +87,12 @@ export function RegisterPasswordTab({
         {description ? (
           <p className="text-center text-sm text-gray-600 mb-6">{description}</p>
         ) : null}
-        <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <AppTextField
             type="password"
             label="Пароль"
             value={password}
-            onChange={(event) => onPasswordChange(stripCyrillic(event.target.value))}
+            onChange={(event) => setPassword(stripCyrillic(event.target.value))}
             error={Boolean(passwordError)}
             helperText={passwordError}
             autoComplete="new-password"
@@ -87,9 +103,9 @@ export function RegisterPasswordTab({
             label="Повторите пароль"
             value={confirmPassword}
             onChange={(event) =>
-              onConfirmPasswordChange(stripCyrillic(event.target.value))
+              setConfirmPassword(stripCyrillic(event.target.value))
             }
-            onBlur={onConfirmPasswordBlur}
+            onBlur={() => setConfirmPasswordTouched(true)}
             error={showPasswordMismatch}
             helperText={showPasswordMismatch ? "Пароли не совпадают." : ""}
             autoComplete="new-password"

@@ -212,6 +212,30 @@ export const appTheme = createTheme({
           "&:focus::placeholder": {
             opacity: 0,
           },
+          "&[type='password']:-webkit-autofill, &[type='password']:-webkit-autofill:hover, &[type='password']:-webkit-autofill:focus": {
+            WebkitTextFillColor: inputTokens.text,
+            caretColor: inputTokens.text,
+            WebkitBoxShadow: `0 0 0 1000px ${inputTokens.background} inset`,
+            boxShadow: `0 0 0 1000px ${inputTokens.background} inset`,
+          },
+          "&[autocomplete='current-password']:-webkit-autofill, &[autocomplete='current-password']:-webkit-autofill:hover, &[autocomplete='current-password']:-webkit-autofill:focus": {
+            WebkitTextFillColor: inputTokens.text,
+            caretColor: inputTokens.text,
+            WebkitBoxShadow: `0 0 0 1000px ${inputTokens.background} inset`,
+            boxShadow: `0 0 0 1000px ${inputTokens.background} inset`,
+          },
+          "&[autocomplete='new-password']:-webkit-autofill, &[autocomplete='new-password']:-webkit-autofill:hover, &[autocomplete='new-password']:-webkit-autofill:focus": {
+            WebkitTextFillColor: inputTokens.text,
+            caretColor: inputTokens.text,
+            WebkitBoxShadow: `0 0 0 1000px ${inputTokens.background} inset`,
+            boxShadow: `0 0 0 1000px ${inputTokens.background} inset`,
+          },
+          "&[type='email']:-webkit-autofill, &[type='email']:-webkit-autofill:hover, &[type='email']:-webkit-autofill:focus": {
+            WebkitTextFillColor: inputTokens.text,
+            caretColor: inputTokens.text,
+            WebkitBoxShadow: `0 0 0 1000px ${inputTokens.background} inset`,
+            boxShadow: `0 0 0 1000px ${inputTokens.background} inset`,
+          },
         },
       },
     },
