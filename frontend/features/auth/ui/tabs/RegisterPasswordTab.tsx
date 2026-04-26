@@ -31,6 +31,10 @@ function stripCyrillic(value: string): string {
   return value.replace(CYRILLIC_PATTERN, "");
 }
 
+function getRequirementTextClass(isValid: boolean): string | undefined {
+  return isValid ? "text-success" : undefined;
+}
+
 export function RegisterPasswordTab({
   title,
   description,
@@ -43,6 +47,7 @@ export function RegisterPasswordTab({
   onBack,
 }: RegisterPasswordTabProps) {
   const [password, setPassword] = useState("");
+  const [passwordTouched, setPasswordTouched] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
 
@@ -64,9 +69,11 @@ export function RegisterPasswordTab({
     !showPasswordMismatch &&
     isPasswordValid &&
     Boolean(confirmPassword);
+  const showWeakPasswordError = passwordTouched && !isPasswordValid;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setPasswordTouched(true);
     setConfirmPasswordTouched(true);
 
     if (!canSubmit) {
@@ -77,7 +84,11 @@ export function RegisterPasswordTab({
   }
 
   return (
-    <AuthContainer showBackButton onBack={onBack} backButtonDisabled={isSubmitting}>
+    <AuthContainer
+      showBackButton
+      onBack={onBack}
+      backButtonDisabled={isSubmitting}
+    >
       <section className="w-full max-w-[420px]">
         <h1
           className={`text-center text-2xl font-semibold ${description ? "mb-2" : "mb-5"}`}
@@ -85,7 +96,9 @@ export function RegisterPasswordTab({
           {title}
         </h1>
         {description ? (
-          <p className="text-center text-sm text-gray-600 mb-6">{description}</p>
+          <p className="text-center text-sm text-gray-600 mb-6">
+            {description}
+          </p>
         ) : null}
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <AppTextField
@@ -93,8 +106,14 @@ export function RegisterPasswordTab({
             label="Пароль"
             value={password}
             onChange={(event) => setPassword(stripCyrillic(event.target.value))}
-            error={Boolean(passwordError)}
-            helperText={passwordError}
+            onBlur={() => setPasswordTouched(true)}
+            error={Boolean(passwordError) || showWeakPasswordError}
+            helperText={
+              passwordError ??
+              (showWeakPasswordError
+                ? "Придумайте более сложный пароль"
+                : undefined)
+            }
             autoComplete="new-password"
             required
           />
@@ -113,22 +132,24 @@ export function RegisterPasswordTab({
           />
           <div className="flex flex-col gap-2 text-sm">
             <div className="flex items-center gap-2">
-              <Icon component={hasMinLength ? CircleCheckIcon : CircleCrossIcon} />
-              <p className={hasMinLength ? "text-[#52C41A]" : "text-[#c4c2be]"}>
+              <Icon
+                component={hasMinLength ? CircleCheckIcon : CircleCrossIcon}
+              />
+              <p className={getRequirementTextClass(hasMinLength)}>
                 6 символов
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Icon component={hasUppercase ? CircleCheckIcon : CircleCrossIcon} />
-              <p className={hasUppercase ? "text-[#52C41A]" : "text-[#c4c2be]"}>
+              <Icon
+                component={hasUppercase ? CircleCheckIcon : CircleCrossIcon}
+              />
+              <p className={getRequirementTextClass(hasUppercase)}>
                 Одна заглавная буква
               </p>
             </div>
             <div className="flex items-center gap-2">
               <Icon component={hasDigit ? CircleCheckIcon : CircleCrossIcon} />
-              <p className={hasDigit ? "text-[#52C41A]" : "text-[#c4c2be]"}>
-                Одна цифра
-              </p>
+              <p className={getRequirementTextClass(hasDigit)}>Одна цифра</p>
             </div>
           </div>
           <FlowError message={errorMessage} />
