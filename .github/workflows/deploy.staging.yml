@@ -111,7 +111,19 @@ jobs:
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_PRIVATE_KEY }}
           script: |
+            mkdir -p ~/deploy/staging
+            cat > ~/deploy/staging/.env <<EOF
+            MAIL_HOST=${{ secrets.MAIL_HOST }}
+            MAIL_PORT=${{ secrets.MAIL_PORT }}
+            MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+            MAIL_FROM=${{ secrets.MAIL_FROM }}
+            MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            EOF
+            chmod 600 ~/deploy/staging/.env
+
             docker pull srkinj/platform-frontend:staging 
             docker pull srkinj/platform-storybook:staging
             docker pull srkinj/platform-backend:staging
-            docker-compose -f ~/deploy/staging/docker-compose.staging.yml up -d
+            docker-compose --env-file ~/deploy/staging/.env -f ~/deploy/staging/docker-compose.staging.yml up -d
+
+

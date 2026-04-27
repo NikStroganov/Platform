@@ -1,7 +1,6 @@
 package com.verification.service;
 
 import com.auth.user.repo.UserRepo;
-import com.email.config.MailProperties;
 import com.email.services.EmailService;
 import com.utils.enums.Errors;
 import com.utils.enums.VerificationPurpose;
@@ -11,6 +10,7 @@ import com.verification.repo.OtpRepo;
 import com.verification.util.OtpGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,20 +29,17 @@ public class OtpService {
     private final OtpGenerator otpGenerator;
     private final BCryptPasswordEncoder passwordEncoder;
     private final EmailService mailSender;
-    private final MailProperties mailProperties;
 
     public OtpService(UserRepo userRepo,
                       OtpRepo otpRepo,
                       OtpGenerator otpGenerator,
                       BCryptPasswordEncoder passwordEncoder,
-                      EmailService mailSender,
-                      MailProperties mailProperties) {
+                      EmailService mailSender) {
         this.userRepo = userRepo;
         this.otpRepo = otpRepo;
         this.otpGenerator = otpGenerator;
         this.passwordEncoder = passwordEncoder;
         this.mailSender = mailSender;
-        this.mailProperties = mailProperties;
     }
 
     public boolean isUser(String email) {
@@ -69,8 +66,17 @@ public class OtpService {
                 .purpose(purpose)
                 .build();
         otpRepo.save(otpEntity);
-        //TODO параметры
-        //mailSender.sendEmail(mailProperties.getSendFrom(), null, null);
+        var subject = purpose == VerificationPurpose.REGISTER
+                ? "OTP code for registration"
+                : "OTP code for password reset";
+        var body = "Your OTP code: " + otp + "\nIt expires in " + otpCodeExpirationSeconds + " seconds.";
+
+        try {
+            mailSender.sendEmail(email, subject, body);
+        } catch (MailException ex) {
+            log.error("Failed to send OTP email to {}", email, ex);
+            throw new ApiException(Errors.INTERNAL_SYSTEM_ERROR);
+        }
     }
 
     @Transactional
