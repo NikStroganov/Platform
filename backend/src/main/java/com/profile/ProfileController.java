@@ -30,6 +30,17 @@ public class ProfileController {
         return profileService.getProfiles();
     }
 
+    @GetMapping("/loginZoneRest")
+    @Operation(summary = "Тестовый рест в зоне логина")
+    public ResponseEntity<ApiResponse<ProfileDto>> testRest() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        "Мы в зоне логина",
+                        null
+                ));
+    }
+
     @PostMapping
     @Operation(summary = "Создать нового пользователя")
     public ResponseEntity<ApiResponse<ProfileDto>> createProfile(@Valid @RequestBody ProfileDto profileDto) {
