@@ -1,6 +1,7 @@
 package com.auth.utils;
 
 import com.utils.enums.Errors;
+import com.utils.exceptions.ApiException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
@@ -74,11 +75,22 @@ public class JwtProvider {
     }
 
     public String validateRefreshToken(String token) {
-        var jwt = jwtDecoder.decode(token); //Проверяем подпись
-        String type = jwt.getClaimAsString("type");
-        if(!("refresh".equals(type))) {
-            throw new JwtException(Errors.INVALID_TOKEN_TYPE.getMessage());
+        try {
+            var jwt = jwtDecoder.decode(token); //Проверяем подпись
+            String type = jwt.getClaimAsString("type");
+            if(!("refresh".equals(type))) {
+                throw new ApiException(Errors.INVALID_TOKEN_TYPE, "tokenType");
+            }
+            return jwt.getSubject();
+
+        } catch (JwtValidationException e) {
+            if(e.getMessage().contains("Jwt expired")) {
+                throw new ApiException(Errors.REFRESH_TOKEN_EXPIRED, "refreshToken");
+            }
+            throw new ApiException(Errors.INVALID_TOKEN, "refreshToken");
+
+        } catch (JwtException e) {
+            throw new ApiException(Errors.INVALID_TOKEN, "refreshToken");
         }
-        return jwt.getSubject();
     }
 }

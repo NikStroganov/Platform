@@ -100,14 +100,10 @@ public class UserService {
     public AuthResponseDto refreshToken(String refreshToken) {
         String email = jwtProvider.validateRefreshToken(refreshToken);
         var user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new ApiException(Errors.USER_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(Errors.USER_NOT_FOUND, "user"));
 
         if(!(refreshToken.equals(user.getRefreshToken()))) {
-            throw new ApiException(Errors.REFRESH_TOKEN_MISMATCH);
-        }
-
-        if(user.getRefreshTokenExpiration().isBefore(Instant.now())) {
-            throw new ApiException(Errors.REFRESH_TOKEN_EXPIRED);
+            throw new ApiException(Errors.REFRESH_TOKEN_MISMATCH, "refreshToken");
         }
 
         String accessToken = jwtProvider.createAccessToken(
