@@ -78,6 +78,11 @@ export function initializeApiInterceptors(): void {
   interceptorsInitialized = true;
 
   api.instance.interceptors.request.use((config) => {
+    const requestUrl = config.url ?? "";
+    if (requestUrl.includes(REFRESH_PATH)) {
+      return config;
+    }
+
     const accessToken = getAccessToken();
     if (!accessToken) {
       return config;
