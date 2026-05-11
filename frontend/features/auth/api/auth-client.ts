@@ -8,7 +8,7 @@ import type {
   UserRegisterDto,
   ValidateOtpDto,
 } from "@/lib/api/gen/data-contracts";
-import { Api } from "@/lib/api/gen/Api";
+import { api } from "@/lib/api/client";
 import { AuthApiError, buildFieldErrors } from "@/features/auth/lib/auth-errors";
 import type { AuthTokens } from "@/features/auth/api/auth-types";
 
@@ -18,9 +18,6 @@ type ApiEnvelope<TData> = {
   data?: TData;
   errors?: ApiError[];
 };
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://backend.careit.tech";
-const authApi = new Api({ baseURL: API_BASE_URL });
 
 function getMessage(payload: ApiEnvelope<unknown> | undefined, fallback: string): string {
   if (!payload) {
@@ -63,27 +60,27 @@ function extractTokens(payload: ApiResponseAuthResponseDto | undefined, fallback
 }
 
 export async function loginUser(payload: UserDto): Promise<AuthTokens> {
-  const response = await authApi.login(payload);
+  const response = await api.login(payload);
   return extractTokens(response.data, "Не удалось выполнить вход.");
 }
 
 export async function registerUser(payload: UserRegisterDto): Promise<AuthTokens> {
-  const response = await authApi.register(payload);
+  const response = await api.register(payload);
   return extractTokens(response.data, "Не удалось зарегистрировать пользователя.");
 }
 
 export async function refreshSession(payload: RefreshTokenDto): Promise<AuthTokens> {
-  const response = await authApi.refresh(payload);
+  const response = await api.refresh(payload);
   return extractTokens(response.data, "Не удалось обновить сессию.");
 }
 
 export async function setNewPassword(payload: UserRegisterDto): Promise<AuthTokens> {
-  const response = await authApi.setNewPassword(payload);
+  const response = await api.setNewPassword(payload);
   return extractTokens(response.data, "Не удалось обновить пароль.");
 }
 
 export async function isUserExists(email: string): Promise<boolean> {
-  const response = await authApi.isUser({ email });
+  const response = await api.isUser({ email });
   const data = extractData<ApiResponseUserExistResponse["data"]>(
     response.data,
     "Не удалось проверить пользователя.",
@@ -93,12 +90,12 @@ export async function isUserExists(email: string): Promise<boolean> {
 }
 
 export async function sendOtp(email: string, purpose: "REGISTER" | "RESET_PASSWORD"): Promise<void> {
-  const response = await authApi.resetPassword({ email, purpose });
+  const response = await api.resetPassword({ email, purpose });
   ensureSuccess(response.data, "Не удалось отправить OTP.");
 }
 
 export async function validateOtp(payload: ValidateOtpDto): Promise<string> {
-  const response = await authApi.sendConfirmCode(payload);
+  const response = await api.sendConfirmCode(payload);
   const data = extractData<ApiResponseVerificationToken["data"]>(
     response.data,
     "Не удалось подтвердить OTP.",

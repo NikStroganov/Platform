@@ -208,4 +208,18 @@ export class Api<
       type: ContentType.Json,
       ...params,
     });
+  /**
+   * No description
+   *
+   * @tags profile-controller
+   * @name TestRest
+   * @summary Тестовый рест в зоне логина
+   * @request GET:/api/v1/userProfile/loginZoneRest
+   */
+  testRest = (params: RequestParams = {}) =>
+    this.request<ApiResponseProfileDto, any>({
+      path: `/api/v1/userProfile/loginZoneRest`,
+      method: "GET",
+      ...params,
+    });
 }

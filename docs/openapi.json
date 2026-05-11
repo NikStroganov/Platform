@@ -379,6 +379,27 @@
           }
         }
       }
+    },
+    "/api/v1/userProfile/loginZoneRest": {
+      "get": {
+        "tags": [
+          "profile-controller"
+        ],
+        "summary": "Тестовый рест в зоне логина",
+        "operationId": "testRest",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseProfileDto"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {

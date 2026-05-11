@@ -1,12 +1,20 @@
 "use client";
 
+import { useEffect } from "react";
 import { Button } from "@mui/material";
 import { useRouter } from "next/navigation";
 
+import { api } from "@/lib/api/client";
 import { clearAuthTokens } from "@/features/auth/lib/token-storage";
 
 export default function Home() {
   const router = useRouter();
+
+  useEffect(() => {
+    void api.testRest().catch((error) => {
+      console.error("testRest request failed", error);
+    });
+  }, []);
 
   const handleLogout = () => {
     clearAuthTokens();
