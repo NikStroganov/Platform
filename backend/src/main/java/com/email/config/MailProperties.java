@@ -8,7 +8,8 @@ import org.springframework.stereotype.Component;
 @Setter
 @Getter
 @Component
-@ConfigurationProperties(prefix = "spring.mail.username")
+@ConfigurationProperties(prefix = "spring.mail")
 public class MailProperties {
-    private String sendFrom;
+    private String username;
+    private String from;
 }

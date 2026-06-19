@@ -28,6 +28,11 @@ services:
       DB_PASS: platform
       JWT_PRIVATE_KEY_PATH: file:/keys/private_pkcs8.pem
       JWT_PUBLIC_KEY_PATH: file:/keys/public_pkcs8.pem
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_FROM: ${MAIL_FROM}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
       VIRTUAL_PORT: 7070
       VIRTUAL_HOST: backend.careit.tech
       LETSENCRYPT_HOST: backend.careit.tech
@@ -68,3 +73,5 @@ networks:
 
 volumes:
   postgres_data:
+
+

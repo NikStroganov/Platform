@@ -9,10 +9,11 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   mail:
-    host: smtp.example.com   # SMTP сервер
-    port: 587                # порт (обычно 587 для TLS)
-    username: your_email@example.com
-    password: your_password
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    from: ${MAIL_FROM}
+    password: ${MAIL_PASSWORD}
     protocol: smtp
     tls: true
     properties:
@@ -43,3 +44,5 @@ otp:
 logging:
   level:
     org.springframework.security: DEBUG
+
+
