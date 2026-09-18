@@ -9,6 +9,7 @@ public class TopCompanyMapper {
 
     public TopCompanyDto toTopCompanyDto(TopCompanyEntity entity, String logoUrl) {
         return new TopCompanyDto(
+                entity.getCompany().getId(),
                 entity.getCompany().getName(),
                 logoUrl,
                 entity.getBackgroundColor()

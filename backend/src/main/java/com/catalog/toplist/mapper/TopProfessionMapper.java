@@ -9,6 +9,7 @@ public class TopProfessionMapper {
 
     public TopProfessionDto toTopProfessionDto(TopProfessionEntity entity) {
         return new TopProfessionDto(
+                entity.getProfession().getId(),
                 entity.getProfession().getName(),
                 entity.getBackgroundColor()
         );
