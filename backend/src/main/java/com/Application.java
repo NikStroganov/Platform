@@ -2,9 +2,11 @@ package com;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
+@ConfigurationPropertiesScan
 //@ComponentScan(basePackages = {
 //        "com/profile",
 //        "com/auth",

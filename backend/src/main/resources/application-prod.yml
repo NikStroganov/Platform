@@ -43,3 +43,6 @@ otp:
 logging:
   level:
     org.springframework.security: DEBUG
+
+app:
+  static-base-url: https://api.careit.tech/company-logos/

@@ -16,7 +16,6 @@ public class JwtProvider {
     //DONE определиться со сроками жизни токенов
     @Value("${jwt.tokens.access-expiration:300}") //если в application.properties пусто, то задаем 300 с по умолчанию
     private Long accessExpiration;
-
     @Value("${jwt.tokens.refresh-expiration:604800}")
     private Long refreshExpiration;
 

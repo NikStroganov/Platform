@@ -43,3 +43,6 @@ otp:
 logging:
   level:
     org.springframework.security: DEBUG
+
+app:
+  static-base-url: http://localhost:7070/company-logos/
