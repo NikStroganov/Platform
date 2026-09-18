@@ -17,7 +17,7 @@ public class SmartSearchController {
 
     private final SmartSearchService searchService;
 
-    @RequestMapping
+    @GetMapping
     public ResponseEntity<ApiResponse<SearchResponse>> search(@Valid @ModelAttribute SearchRequest request) {
         return ResponseEntity
                 .ok()
