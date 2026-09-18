@@ -6,5 +6,5 @@ import com.smartsearch.enums.CatalogType;
 public record SearchResult(
         UUID id,
         CatalogType type,
-        String label
+        String name
 ) {}
