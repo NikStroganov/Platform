@@ -400,6 +400,136 @@
           }
         }
       }
+    },
+    "/api/v1/search_result": {
+      "get": {
+        "tags": [
+          "smart-search-controller"
+        ],
+        "operationId": "search",
+        "parameters": [
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SearchRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseSearchResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/professions/top": {
+      "get": {
+        "tags": [
+          "top-profession-controller"
+        ],
+        "operationId": "getTopProfessions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListTopProfessionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/options/work-formats": {
+      "get": {
+        "tags": [
+          "catalog-options-controller"
+        ],
+        "operationId": "getWorkFormats",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListCatalogOptionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/options/seniority-levels": {
+      "get": {
+        "tags": [
+          "catalog-options-controller"
+        ],
+        "operationId": "getSeniorityLevels",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListCatalogOptionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/companies/top": {
+      "get": {
+        "tags": [
+          "top-company-controller"
+        ],
+        "operationId": "getTopCompanies",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListTopCompanyDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/cities/top": {
+      "get": {
+        "tags": [
+          "top-city-controller"
+        ],
+        "operationId": "getTopCities",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListTopCityDto"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -745,6 +875,327 @@
           }
         },
         "description": "Dto для авторизации"
+      },
+      "SearchRequest": {
+        "required": [
+          "query",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Тип поиска",
+            "enum": [
+              "COMPANY",
+              "SKILL",
+              "PROFESSION",
+              "COUNTRY",
+              "CITY"
+            ]
+          },
+          "query": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "Запрос пользователя в поиске"
+          },
+          "page": {
+            "minimum": 0,
+            "type": "integer",
+            "description": "Номер страницы из общего списка",
+            "format": "int32"
+          },
+          "size": {
+            "maximum": 50,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Количество выводимых элементов",
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseSearchResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Успешность операции"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение с инофрмацией о результате операции"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SearchResponse"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Время запроса",
+            "format": "date-time"
+          },
+          "errors": {
+            "type": "array",
+            "description": "Статус код ошибки",
+            "items": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Ответы для операций с профилем пользователя"
+      },
+      "SearchResponse": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "COMPANY",
+              "SKILL",
+              "PROFESSION",
+              "COUNTRY",
+              "CITY"
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchResult"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasNext": {
+            "type": "boolean"
+          }
+        },
+        "description": "Блок с DTO"
+      },
+      "SearchResult": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "COMPANY",
+              "SKILL",
+              "PROFESSION",
+              "COUNTRY",
+              "CITY"
+            ]
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseListTopProfessionDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Успешность операции"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение с инофрмацией о результате операции"
+          },
+          "data": {
+            "type": "array",
+            "description": "Блок с DTO",
+            "items": {
+              "$ref": "#/components/schemas/TopProfessionDto"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Время запроса",
+            "format": "date-time"
+          },
+          "errors": {
+            "type": "array",
+            "description": "Статус код ошибки",
+            "items": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Ответы для операций с профилем пользователя"
+      },
+      "TopProfessionDto": {
+        "type": "object",
+        "properties": {
+          "professionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "backgroundColor": {
+            "type": "string"
+          }
+        },
+        "description": "Блок с DTO"
+      },
+      "ApiResponseListCatalogOptionDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Успешность операции"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение с инофрмацией о результате операции"
+          },
+          "data": {
+            "type": "array",
+            "description": "Блок с DTO",
+            "items": {
+              "$ref": "#/components/schemas/CatalogOptionDto"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Время запроса",
+            "format": "date-time"
+          },
+          "errors": {
+            "type": "array",
+            "description": "Статус код ошибки",
+            "items": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Ответы для операций с профилем пользователя"
+      },
+      "CatalogOptionDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "description": "Блок с DTO"
+      },
+      "ApiResponseListTopCompanyDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Успешность операции"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение с инофрмацией о результате операции"
+          },
+          "data": {
+            "type": "array",
+            "description": "Блок с DTO",
+            "items": {
+              "$ref": "#/components/schemas/TopCompanyDto"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Время запроса",
+            "format": "date-time"
+          },
+          "errors": {
+            "type": "array",
+            "description": "Статус код ошибки",
+            "items": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Ответы для операций с профилем пользователя"
+      },
+      "TopCompanyDto": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "logoKey": {
+            "type": "string"
+          },
+          "backgroundColor": {
+            "type": "string"
+          }
+        },
+        "description": "Блок с DTO"
+      },
+      "ApiResponseListTopCityDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Успешность операции"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение с инофрмацией о результате операции"
+          },
+          "data": {
+            "type": "array",
+            "description": "Блок с DTO",
+            "items": {
+              "$ref": "#/components/schemas/TopCityDto"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Время запроса",
+            "format": "date-time"
+          },
+          "errors": {
+            "type": "array",
+            "description": "Статус код ошибки",
+            "items": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Ответы для операций с профилем пользователя"
+      },
+      "TopCityDto": {
+        "type": "object",
+        "properties": {
+          "cityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "backgroundColor": {
+            "type": "string"
+          }
+        },
+        "description": "Блок с DTO"
       }
     }
   }
