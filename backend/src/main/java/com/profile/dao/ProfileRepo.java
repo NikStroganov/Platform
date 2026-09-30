@@ -1,15 +1,15 @@
 package com.profile.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.profile.Profile;
+import com.profile.entity.ProfileEntity;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
-//Работает только с сущностями, не с Dto
 //Параметры - сущность, с которой работаем и класс первичного ключа
 
-public interface ProfileRepo extends JpaRepository<Profile, Long>, ProfileCustomRepo {
-    //DONE пока базовый CRUD, добавить кастомные запросы
-    Optional<Profile> findByEmail(String email);
+@Repository
+public interface ProfileRepo extends JpaRepository<ProfileEntity, UUID> {
+    //Optional<ProfileEntity> findByEmail(String email);
 }
-
