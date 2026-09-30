@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum WorkFormat {
+
     OFFICE("Офис"),
     HYBRID("Гибрид"),
     REMOTE("Удаленно");
