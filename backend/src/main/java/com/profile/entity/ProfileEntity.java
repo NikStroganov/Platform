@@ -46,6 +46,14 @@ public class ProfileEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
+    @Column(
+            name = "nickname",
+            nullable = false,
+            unique = true,
+            length = 50
+    )
+    private String nickname;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private CompanyEntity company;

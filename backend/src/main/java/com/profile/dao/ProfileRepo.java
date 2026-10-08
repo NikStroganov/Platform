@@ -11,5 +11,7 @@ import java.util.UUID;
 
 @Repository
 public interface ProfileRepo extends JpaRepository<ProfileEntity, UUID> {
+
+    boolean existsByNicknameIgnoreCase(String nickname);
     //Optional<ProfileEntity> findByEmail(String email);
 }

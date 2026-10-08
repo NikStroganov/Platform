@@ -6,6 +6,7 @@ import com.catalog.entity.CityEntity;
 import com.catalog.entity.CompanyEntity;
 import com.catalog.entity.CountryEntity;
 import com.catalog.entity.ProfessionEntity;
+import com.onboarding.dto.NicknameAvailabilityDto;
 import com.onboarding.dto.OnboardingDto;
 import com.profile.dao.ProfileRepo;
 import com.profile.entity.ProfileEntity;
@@ -15,7 +16,9 @@ import com.smartsearch.repo.CountriesRepo;
 import com.smartsearch.repo.ProfessionsRepo;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +36,13 @@ public class OnboardingService {
         UserEntity user = userRepo.findByEmail(email)
                 .orElseThrow(() ->
                         new EntityNotFoundException("User not found"));
+
+        if (profileRepo.existsByNicknameIgnoreCase(onboardingDto.nickname())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Nickname already exists"
+            );
+        }
 
         CompanyEntity companyEntity = companiesRepo.findById(onboardingDto.companyId())
                 .orElseThrow(() ->
@@ -79,5 +89,16 @@ public class OnboardingService {
         profile.setCurrency(onboardingDto.currency());
 
         profileRepo.save(profile);
+    }
+
+    public NicknameAvailabilityDto checkNicknameAvailability(String nickname) {
+
+        String normalizedNickname = nickname.trim();
+        boolean exists = profileRepo.existsByNicknameIgnoreCase(normalizedNickname);
+
+        return new NicknameAvailabilityDto(
+                normalizedNickname,
+                !exists
+        );
     }
 }
