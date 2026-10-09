@@ -1,4 +1,4 @@
----
+﻿---
 name: openspec-continue-change
 description: Continue working on an OpenSpec change by creating the next artifact. Use when the user wants to progress their change, create the next artifact, or continue their workflow.
 license: MIT
@@ -95,9 +95,11 @@ After each invocation, show:
 
 The artifact types and their purpose depend on the schema. Use the `instruction` field from the instructions output to understand what to create.
 
+If the user requests a language preference for OpenSpec artifacts, write the current artifact in that language and record the preference in the artifact when it is useful context for later artifacts. Apply the same preference to subsequent artifacts for that change unless the user changes it.
+
 Common artifact patterns:
 
-**spec-driven schema** (proposal → specs → design → tasks):
+**spec-driven schema** (proposal в†’ specs в†’ design в†’ tasks):
 - **proposal.md**: Ask user about the change if not clear. Fill in Why, What Changes, Capabilities, Impact.
   - The Capabilities section is critical - each capability listed will need a spec file.
 - **specs/<capability>/spec.md**: Create one spec per capability listed in the proposal's Capabilities section (use the capability name, not the change name).
@@ -116,3 +118,4 @@ For other schemas, follow the `instruction` field from the CLI output.
 - **IMPORTANT**: `context` and `rules` are constraints for YOU, not content for the file
   - Do NOT copy `<context>`, `<rules>`, `<project_context>` blocks into the artifact
   - These guide what you write, but should never appear in the output
+

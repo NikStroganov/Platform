@@ -8,8 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "apigen": "npx swagger-typescript-api generate --axios --extract-responses -p ../docs/openapi.json -o ./lib/api/gen -n apigen.ts --modular",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "storybook": "storybook dev -p 6006 --no-open",
+    "build-storybook": "storybook build",
+    "test:field-input": "node tests/field-input.visual.mjs",
+    "test:chip-input": "node tests/chip-input-active.visual.mjs",
+    "test:chip-input-overflow": "node tests/chip-input-overflow.visual.mjs"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
