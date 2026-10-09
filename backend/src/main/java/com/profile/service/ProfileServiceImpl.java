@@ -1,6 +1,6 @@
 package com.profile.service;
 
-import com.profile.Profile;
+import com.profile.entity.ProfileEntity;
 import com.profile.dao.ProfileRepo;
 import com.profile.dto.ProfileDto;
 import com.profile.mapping.ProfileMapper;
@@ -43,44 +43,22 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public ProfileDto createProfile(ProfileDto profileDto) {
-        if (profileRepo.findByEmail(profileDto.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Profile is already exists");
-        }
-        Profile savedEntity = profileRepo.save(profileMapper.toEntity(profileDto));
-        return profileMapper.toDto(savedEntity);
+        return null;
     }
 
     @Override
     public ProfileDto findProfileById(Long id) {
-        return profileRepo.findById(id)
-                .map(profileMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException("Profile with id " + id + " not found"));
+        return null;
     }
 
     //DONE брать айдишник из запроса PL
     //TODO переделать присваивание всех полей, когда реализую через MapStruct
     @Override
     public ProfileDto updateProfile(Long id, ProfileDto profileDto) {
-        Profile existingProfile = profileRepo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Profile not found"));
-
-        existingProfile.setFirstName(profileDto.getFirstName());
-        existingProfile.setLastName(profileDto.getLastName());
-        existingProfile.setPosition(profileDto.getPosition());
-        existingProfile.setCountry(profileDto.getCountry());
-        existingProfile.setCurrentJob(profileDto.getCurrentJob());
-        existingProfile.setEducation(profileDto.getEducation());
-        existingProfile.setGeneralInfo(profileDto.getGeneralInfo());
-
-        Profile updatedProfile = profileRepo.save(existingProfile);
-        return profileMapper.toDto(updatedProfile);
+        return null;
     }
 
     @Override
     public void deleteProfile(Long id) {
-        if(!profileRepo.existsById(id)) {
-            throw new EntityNotFoundException("Profile with id " + id + " not found");
-        }
-        profileRepo.deleteById(id);
     }
 }

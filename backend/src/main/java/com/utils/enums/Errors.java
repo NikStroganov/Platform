@@ -23,7 +23,8 @@ public enum Errors {
     REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "Несоответствие рефреш токена"),
     UNVERIFIED_BY_OTP_USER(HttpStatus.BAD_REQUEST, "Пользователь не верифицирован"),
     REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Рефреш токен истек"),
-    INVALID_TOKEN_TYPE(HttpStatus.BAD_REQUEST, "Неверный тип токена");
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Невалдиный токен"),
+    INVALID_TOKEN_TYPE(HttpStatus.BAD_REQUEST, "Невалидный тип токена");
 
     private final HttpStatus status;
     private final String message;
