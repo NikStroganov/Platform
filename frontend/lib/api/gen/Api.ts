@@ -12,12 +12,19 @@
 
 import {
   ApiResponseAuthResponseDto,
+  ApiResponseListCatalogOptionDto,
+  ApiResponseListTopCityDto,
+  ApiResponseListTopCompanyDto,
+  ApiResponseListTopProfessionDto,
   ApiResponseProfileDto,
+  ApiResponseSearchResponse,
   ApiResponseUserExistResponse,
   ApiResponseVerificationToken,
   ApiResponseVoid,
+  OnboardingDto,
   ProfileDto,
   RefreshTokenDto,
+  SearchRequest,
   SendOtpDto,
   UserDto,
   UserEmailDto,
@@ -151,6 +158,21 @@ export class Api<
   /**
    * No description
    *
+   * @tags onboarding-controller
+   * @name SaveOnboarding
+   * @request POST:/api/v1/onboarding
+   */
+  saveOnboarding = (data: OnboardingDto, params: RequestParams = {}) =>
+    this.request<ApiResponseVoid, any>({
+      path: `/api/v1/onboarding`,
+      method: "POST",
+      body: data,
+      type: ContentType.Json,
+      ...params,
+    });
+  /**
+   * No description
+   *
    * @tags user-controller
    * @name SetNewPassword
    * @request POST:/api/v1/auth/set-new-password
@@ -219,6 +241,90 @@ export class Api<
   testRest = (params: RequestParams = {}) =>
     this.request<ApiResponseProfileDto, any>({
       path: `/api/v1/userProfile/loginZoneRest`,
+      method: "GET",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags smart-search-controller
+   * @name Search
+   * @request GET:/api/v1/search_result
+   */
+  search = (
+    query: {
+      request: SearchRequest;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<ApiResponseSearchResponse, any>({
+      path: `/api/v1/search_result`,
+      method: "GET",
+      query: query,
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags top-profession-controller
+   * @name GetTopProfessions
+   * @request GET:/api/v1/catalog/professions/top
+   */
+  getTopProfessions = (params: RequestParams = {}) =>
+    this.request<ApiResponseListTopProfessionDto, any>({
+      path: `/api/v1/catalog/professions/top`,
+      method: "GET",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags catalog-options-controller
+   * @name GetWorkFormats
+   * @request GET:/api/v1/catalog/options/work-formats
+   */
+  getWorkFormats = (params: RequestParams = {}) =>
+    this.request<ApiResponseListCatalogOptionDto, any>({
+      path: `/api/v1/catalog/options/work-formats`,
+      method: "GET",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags catalog-options-controller
+   * @name GetSeniorityLevels
+   * @request GET:/api/v1/catalog/options/seniority-levels
+   */
+  getSeniorityLevels = (params: RequestParams = {}) =>
+    this.request<ApiResponseListCatalogOptionDto, any>({
+      path: `/api/v1/catalog/options/seniority-levels`,
+      method: "GET",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags top-company-controller
+   * @name GetTopCompanies
+   * @request GET:/api/v1/catalog/companies/top
+   */
+  getTopCompanies = (params: RequestParams = {}) =>
+    this.request<ApiResponseListTopCompanyDto, any>({
+      path: `/api/v1/catalog/companies/top`,
+      method: "GET",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags top-city-controller
+   * @name GetTopCities
+   * @request GET:/api/v1/catalog/cities/top
+   */
+  getTopCities = (params: RequestParams = {}) =>
+    this.request<ApiResponseListTopCityDto, any>({
+      path: `/api/v1/catalog/cities/top`,
       method: "GET",
       ...params,
     });

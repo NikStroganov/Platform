@@ -160,6 +160,61 @@ export interface UserExistResponse {
   exists?: boolean;
 }
 
+export interface OnboardingDto {
+  /**
+   * @minLength 2
+   * @maxLength 20
+   */
+  nickname: string;
+  /** @format uuid */
+  companyId: string;
+  /** @format uuid */
+  countryId: string;
+  /** @format uuid */
+  cityId?: string;
+  workFormat: "OFFICE" | "HYBRID" | "REMOTE";
+  /** @format uuid */
+  professionId: string;
+  seniorityLevel:
+    | "INTERN"
+    | "JUNIOR"
+    | "JUNIOR_PLUS"
+    | "MIDDLE"
+    | "MIDDLE_PLUS"
+    | "SENIOR"
+    | "EXPERT"
+    | "LEAD"
+    | "DIRECTOR";
+  /**
+   * @format int32
+   * @min 1
+   * @max 100
+   */
+  companyGrade?: number;
+  /**
+   * @min 0
+   * @exclusiveMin false
+   * @max 50
+   * @exclusiveMax false
+   */
+  workExperienceYears: number;
+  /**
+   * @min 0
+   * @exclusiveMin false
+   * @max 2000000
+   * @exclusiveMax false
+   */
+  salary: number;
+  /**
+   * @min 0
+   * @exclusiveMin false
+   * @max 2000000
+   * @exclusiveMax false
+   */
+  bonus?: number;
+  currency: "RUB" | "USD";
+}
+
 export interface UserRegisterDto {
   email: string;
   /** @pattern ^(?=.*[A-Z])(?=.*\d).{6,}$ */
@@ -200,4 +255,163 @@ export interface RefreshTokenDto {
 export interface UserDto {
   email: string;
   password: string;
+}
+
+export interface SearchRequest {
+  /** Тип поиска */
+  type: "COMPANY" | "SKILL" | "PROFESSION" | "COUNTRY" | "CITY";
+  /**
+   * Запрос пользователя в поиске
+   * @minLength 0
+   * @maxLength 100
+   */
+  query: string;
+  /**
+   * Номер страницы из общего списка
+   * @format int32
+   * @min 0
+   */
+  page?: number;
+  /**
+   * Количество выводимых элементов
+   * @format int32
+   * @min 0
+   * @max 50
+   */
+  size?: number;
+}
+
+/** Ответы для операций с профилем пользователя */
+export interface ApiResponseSearchResponse {
+  /** Успешность операции */
+  success?: boolean;
+  /** Сообщение с инофрмацией о результате операции */
+  message?: string;
+  /** Блок с DTO */
+  data?: SearchResponse;
+  /**
+   * Время запроса
+   * @format date-time
+   */
+  timestamp?: string;
+  /** Статус код ошибки */
+  errors?: ApiError[];
+}
+
+/** Блок с DTO */
+export interface SearchResponse {
+  query?: string;
+  type?: "COMPANY" | "SKILL" | "PROFESSION" | "COUNTRY" | "CITY";
+  items?: SearchResult[];
+  /** @format int32 */
+  page?: number;
+  /** @format int32 */
+  size?: number;
+  hasNext?: boolean;
+}
+
+export interface SearchResult {
+  /** @format uuid */
+  id?: string;
+  type?: "COMPANY" | "SKILL" | "PROFESSION" | "COUNTRY" | "CITY";
+  name?: string;
+}
+
+/** Ответы для операций с профилем пользователя */
+export interface ApiResponseListTopProfessionDto {
+  /** Успешность операции */
+  success?: boolean;
+  /** Сообщение с инофрмацией о результате операции */
+  message?: string;
+  /** Блок с DTO */
+  data?: TopProfessionDto[];
+  /**
+   * Время запроса
+   * @format date-time
+   */
+  timestamp?: string;
+  /** Статус код ошибки */
+  errors?: ApiError[];
+}
+
+/** Блок с DTO */
+export interface TopProfessionDto {
+  /** @format uuid */
+  professionId?: string;
+  name?: string;
+  backgroundColor?: string;
+}
+
+/** Ответы для операций с профилем пользователя */
+export interface ApiResponseListCatalogOptionDto {
+  /** Успешность операции */
+  success?: boolean;
+  /** Сообщение с инофрмацией о результате операции */
+  message?: string;
+  /** Блок с DTO */
+  data?: CatalogOptionDto[];
+  /**
+   * Время запроса
+   * @format date-time
+   */
+  timestamp?: string;
+  /** Статус код ошибки */
+  errors?: ApiError[];
+}
+
+/** Блок с DTO */
+export interface CatalogOptionDto {
+  code?: string;
+  label?: string;
+}
+
+/** Ответы для операций с профилем пользователя */
+export interface ApiResponseListTopCompanyDto {
+  /** Успешность операции */
+  success?: boolean;
+  /** Сообщение с инофрмацией о результате операции */
+  message?: string;
+  /** Блок с DTO */
+  data?: TopCompanyDto[];
+  /**
+   * Время запроса
+   * @format date-time
+   */
+  timestamp?: string;
+  /** Статус код ошибки */
+  errors?: ApiError[];
+}
+
+/** Блок с DTO */
+export interface TopCompanyDto {
+  /** @format uuid */
+  companyId?: string;
+  name?: string;
+  logoKey?: string;
+  backgroundColor?: string;
+}
+
+/** Ответы для операций с профилем пользователя */
+export interface ApiResponseListTopCityDto {
+  /** Успешность операции */
+  success?: boolean;
+  /** Сообщение с инофрмацией о результате операции */
+  message?: string;
+  /** Блок с DTO */
+  data?: TopCityDto[];
+  /**
+   * Время запроса
+   * @format date-time
+   */
+  timestamp?: string;
+  /** Статус код ошибки */
+  errors?: ApiError[];
+}
+
+/** Блок с DTO */
+export interface TopCityDto {
+  /** @format uuid */
+  cityId?: string;
+  name?: string;
+  backgroundColor?: string;
 }
