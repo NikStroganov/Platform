@@ -12,7 +12,8 @@
     "build-storybook": "storybook build",
     "test:field-input": "node tests/field-input.visual.mjs",
     "test:chip-input": "node tests/chip-input-active.visual.mjs",
-    "test:chip-input-overflow": "node tests/chip-input-overflow.visual.mjs"
+    "test:chip-input-overflow": "node tests/chip-input-overflow.visual.mjs",
+    "test:onboarding-intro": "node tests/onboarding-intro.visual.mjs"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
