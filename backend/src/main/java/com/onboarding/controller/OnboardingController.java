@@ -1,9 +1,12 @@
 package com.onboarding.controller;
 
 import com.onboarding.dto.NicknameAvailabilityDto;
+import com.onboarding.dto.OnboardingStatusResponse;
 import com.onboarding.dto.OnboardingDto;
 import com.onboarding.service.OnboardingService;
 import com.utils.responsevalidator.ApiResponse;
+import com.verification.dto.rq.UserEmailDto;
+import com.verification.dto.rs.UserExistResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
@@ -46,5 +49,18 @@ public class OnboardingController {
                         onboardingService.checkNicknameAvailability(nickname)
                 )
         );
+    }
+
+    @PostMapping("/status")
+    public ResponseEntity<ApiResponse<OnboardingStatusResponse>> getOnboardingStatus(
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String email = jwt.getSubject();
+        return ResponseEntity
+                .ok()
+                .body(ApiResponse.success(
+                        "Onboarding status received",
+                        onboardingService.getOnboardingStatus(email)
+                ));
     }
 }

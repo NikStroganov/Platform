@@ -7,6 +7,7 @@ import com.catalog.entity.CompanyEntity;
 import com.catalog.entity.CountryEntity;
 import com.catalog.entity.ProfessionEntity;
 import com.onboarding.dto.NicknameAvailabilityDto;
+import com.onboarding.dto.OnboardingStatusResponse;
 import com.onboarding.dto.OnboardingDto;
 import com.profile.dao.ProfileRepo;
 import com.profile.entity.ProfileEntity;
@@ -64,7 +65,7 @@ public class OnboardingService {
                             new EntityNotFoundException("City not found"));
         }
 
-        if(!cityEntity.getCountry().equals(countryEntity.getId())) {
+        if(!cityEntity.getCountry().getId().equals(countryEntity.getId())) {
             throw new IllegalArgumentException(
                     "City does not belong selected country"
             );
@@ -75,6 +76,7 @@ public class OnboardingService {
                 .orElseGet(ProfileEntity::new);
 
         profile.setUser(user);
+        profile.setOnboardingCompleted(true);
         profile.setCompany(companyEntity);
         profile.setCountry(countryEntity);
         profile.setCity(cityEntity);
@@ -100,5 +102,18 @@ public class OnboardingService {
                 normalizedNickname,
                 !exists
         );
+    }
+
+    public OnboardingStatusResponse getOnboardingStatus(String email) {
+
+        UserEntity user = userRepo.findByEmail(email)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("User not found"));
+
+        boolean completed = profileRepo.findById(user.getId())
+                .map(ProfileEntity::isOnboardingCompleted)
+                .orElse(false);
+
+        return new OnboardingStatusResponse(completed);
     }
 }
