@@ -3,6 +3,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import net from "node:net";
 import path from "node:path";
+import os from "node:os";
 
 function getFreePort() {
   return new Promise((resolve, reject) => {
@@ -26,7 +27,7 @@ const providedAppUrl = process.env.APP_URL;
 const port = process.env.ONBOARDING_TEST_PORT ?? String(await getFreePort());
 const appUrl = providedAppUrl ?? `http://localhost:${port}`;
 const onboardingUrl = `${appUrl}/onboarding`;
-const screenshotPath = path.join(process.cwd(), "test-results", "onboarding-intro-first-slide.png");
+const screenshotPath = path.join(os.tmpdir(), "platform-onboarding-review", "intro-test-first-slide.png");
 
 function expectEqual(actual, expected, message) {
   if (actual !== expected) {
@@ -108,16 +109,9 @@ function getIntroMetrics() {
     };
   }
 
-  const debugWelcome = document.querySelector('[data-testid="intro-debug-welcome"]');
-  const debugAnonymous = document.querySelector('[data-testid="intro-debug-anonymous"]');
-
   return {
     welcome: sceneMetrics("2031:6237"),
     anonymous: sceneMetrics("2031:5313"),
-    debugWelcomeExists: Boolean(debugWelcome),
-    debugAnonymousExists: Boolean(debugAnonymous),
-    debugWelcomeBackground: debugWelcome ? getComputedStyle(debugWelcome).backgroundColor : null,
-    debugAnonymousBackground: debugAnonymous ? getComputedStyle(debugAnonymous).backgroundColor : null,
   };
 }
 
@@ -140,7 +134,6 @@ try {
   } catch (error) {
     throw new Error(`Welcome slide selector was not attached. Body:\n${(await page.locator("body").innerText()).slice(0, 2000)}\nDev server output:\n${server?.output ?? "<no server output>"}\nOriginal error:\n${error}`);
   }
-  await page.waitForSelector('[data-testid="intro-debug-welcome"]', { timeout: 30000 });
 
   const initialMetrics = await page.evaluate(getIntroMetrics);
 
@@ -148,26 +141,21 @@ try {
   expectEqual(initialMetrics.anonymous.exists, true, "anonymous slide scene exists");
   expectOpacityNear(initialMetrics.welcome.layerOpacity, 1, "welcome slide is visible on first render");
   expectOpacityNear(initialMetrics.anonymous.layerOpacity, 0, "anonymous slide is hidden on first render");
-  expectEqual(initialMetrics.debugWelcomeExists, true, "debug switcher has welcome control");
-  expectEqual(initialMetrics.debugAnonymousExists, true, "debug switcher has anonymous control");
   expectNear(initialMetrics.welcome.rect.w, 1440, 1, "welcome scene keeps Figma width at desktop viewport");
   expectNear(initialMetrics.welcome.rect.h, 900, 1, "welcome scene keeps Figma height at desktop viewport");
 
   fs.mkdirSync(path.dirname(screenshotPath), { recursive: true });
   await page.screenshot({ path: screenshotPath, fullPage: false });
 
-  await page.locator('[data-testid="intro-debug-anonymous"]').click();
-  await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-node-id="2031:5313"]').parentElement).opacity === "1");
-  const afterDebugSwitchMetrics = await page.evaluate(getIntroMetrics);
-
-  expectOpacityNear(afterDebugSwitchMetrics.welcome.layerOpacity, 0, "debug switch hides welcome slide");
-  expectOpacityNear(afterDebugSwitchMetrics.anonymous.layerOpacity, 1, "debug switch shows anonymous slide");
-
-  await page.waitForTimeout(5200);
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-node-id="2031:5313"]').parentElement).opacity === "1", undefined, { timeout: 10000 });
   const afterTimerMetrics = await page.evaluate(getIntroMetrics);
-  expectOpacityNear(afterTimerMetrics.anonymous.layerOpacity, 1, "manual debug slide is not overwritten by one-shot timer");
-
-  console.log(JSON.stringify({ appUrl, initialMetrics, afterDebugSwitchMetrics }, null, 2));
+  expectOpacityNear(afterTimerMetrics.welcome.layerOpacity, 0, "timer hides welcome slide");
+  expectOpacityNear(afterTimerMetrics.anonymous.layerOpacity, 1, "timer reveals anonymity slide");
+  expectEqual(await page.locator('[data-testid^="intro-debug-"]').count(), 0, "intro does not expose debug controls");
+  await page.getByRole("button", { name: "Идем дальше", exact: true }).click();
+  await page.getByPlaceholder("Введи свой никнейм").waitFor();
+  expectEqual(await page.getByRole("tab", { selected: true }).getAttribute("aria-label"), "Шаг 1", "continue opens nickname step");
+  console.log(JSON.stringify({ appUrl, initialMetrics, afterTimerMetrics }, null, 2));
   console.log(`Saved screenshot: ${screenshotPath}`);
 } finally {
   await browser.close();

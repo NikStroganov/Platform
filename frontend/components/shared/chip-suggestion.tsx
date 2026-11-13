@@ -12,13 +12,15 @@ export type ChipSuggestionItem = {
   imageUrl?: string;
 };
 
-export type ChipSuggestionProps = Omit<BoxProps, "onChange"> & {
+export type ChipSuggestionProps = Omit<BoxProps, "onChange" | "onSelect"> & {
   items: ChipSuggestionItem[];
   onSelect?: (value: string) => void;
   colorHex?: string;
+  plusIconSrc?: string;
+  disabled?: boolean;
 };
 
-export function ChipSuggestion({ items, onSelect, colorHex, sx, ...props }: ChipSuggestionProps) {
+export function ChipSuggestion({ items, onSelect, colorHex, plusIconSrc, disabled, sx, ...props }: ChipSuggestionProps) {
   const accent = resolveHexColor(colorHex, "#3d82ff");
 
   return (
@@ -27,12 +29,13 @@ export function ChipSuggestion({ items, onSelect, colorHex, sx, ...props }: Chip
         <ButtonBase
           key={item.value}
           disableRipple
+          disabled={disabled}
           onClick={() => onSelect?.(item.value)}
           sx={{ minHeight: 92, flexDirection: "column", gap: 2, p: 2, borderRadius: "16px", bgcolor: alphaHex(colorHex, "#3d82ff", 0.15), color: "#111111", "&:focus-visible": { outline: `2px solid ${accent}`, outlineOffset: 3 } }}
         >
           {item.imageUrl ? <Box component="img" src={item.imageUrl} alt="" sx={{ width: 24, height: 24, borderRadius: "50%", objectFit: "cover" }} /> : null}
           <Typography sx={{ fontSize: 16, fontWeight: 500, lineHeight: "24px" }}>{item.label}</Typography>
-          <Box sx={{ color: accent, fontSize: 20, lineHeight: 1 }}>+</Box>
+          {plusIconSrc ? <Box component="img" src={plusIconSrc} alt="" sx={{ width: 20, height: 20 }} /> : <Box sx={{ color: accent, fontSize: 20, lineHeight: 1 }}>+</Box>}
         </ButtonBase>
       ))}
     </Box>

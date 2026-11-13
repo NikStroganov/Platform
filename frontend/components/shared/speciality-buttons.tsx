@@ -9,6 +9,7 @@ export type SpecialityButtonItem = {
   value: string;
   label: string;
   colorHex?: string;
+  backgroundHex?: string;
 };
 
 export type SpecialityButtonsProps = Omit<BoxProps, "onChange"> & {
@@ -39,7 +40,7 @@ export function SpecialityButtons({ items, value, onChange, sx, ...props }: Spec
               borderRadius: "32px",
               border: "1px solid",
               borderColor: alphaHex(item.colorHex, "#1ca2d3", selected ? 0.45 : 0.2),
-              bgcolor: alphaHex(item.colorHex, "#1ca2d3", selected ? 0.22 : 0.15),
+              bgcolor: item.backgroundHex ?? alphaHex(item.colorHex, "#1ca2d3", selected ? 0.22 : 0.15),
               color: accent,
               fontSize: 16,
               fontWeight: 600,

@@ -65,6 +65,11 @@ const skills: SearchResult[] = [
   { id: "skill-typescript", type: "SKILL", name: "TypeScript" },
   { id: "skill-css", type: "SKILL", name: "CSS" },
   { id: "skill-a11y", type: "SKILL", name: "Accessibility" },
+  ...["Adobe Photoshop", "Гений дизайна", "Adobe Illustrator", "UX Research", "Прототипирование", "Дизайн-системы", "HTML", "JavaScript", "Node.js", "SQL", "Git", "Docker", "Python", "Java", "Kotlin", "Swift", "Go", "Kubernetes", "GraphQL", "REST API", "Тестирование", "Аналитика"].map<SearchResult>((name, index) => ({
+    id: `30000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+    type: "SKILL",
+    name,
+  })),
 ];
 
 function matchesQuery(name: string | undefined, query: string) {

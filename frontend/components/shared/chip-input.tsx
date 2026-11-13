@@ -24,6 +24,10 @@ export type ChipInputProps = Omit<BoxProps, "onChange"> & {
   options?: ChipInputOption[];
   active?: boolean;
   noOptionsText?: string;
+  maxItems?: number;
+  hideInputAtLimit?: boolean;
+  deleteIconSrc?: string;
+  clearIconSrc?: string;
 };
 
 const defaultPlaceholder = "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u043d\u0430\u0432\u044b\u043a";
@@ -48,7 +52,7 @@ function optionLabelByValue(options: ChipInputOption[] | undefined, value: strin
   return options?.find((option) => option.value === value)?.label ?? value;
 }
 
-function SelectedSkillChip({ label, onDelete }: { label: string; onDelete: () => void }) {
+function SelectedSkillChip({ label, onDelete, deleteIconSrc }: { label: string; onDelete: () => void; deleteIconSrc?: string }) {
   return (
     <Box
       data-testid="chip-input-active-chip"
@@ -86,7 +90,7 @@ function SelectedSkillChip({ label, onDelete }: { label: string; onDelete: () =>
           "&:focus-visible": { outline: "2px solid #3d82ff", outlineOffset: 2 },
         }}
       >
-        {"\u00d7"}
+        {deleteIconSrc ? <Box component="img" src={deleteIconSrc} alt="" sx={{ width: 16, height: 16 }} /> : "\u00d7"}
       </ButtonBase>
     </Box>
   );
@@ -129,6 +133,10 @@ export function ChipInput({
   options,
   active = false,
   noOptionsText = defaultNoOptionsText,
+  maxItems = Infinity,
+  hideInputAtLimit = false,
+  deleteIconSrc,
+  clearIconSrc,
   sx,
   ...props
 }: ChipInputProps) {
@@ -160,9 +168,10 @@ export function ChipInput({
   const updateValue = (nextValue: string[]) => onChange?.(nextValue);
 
   const addDraft = () => {
-    const next = draft.trim();
+    const text = draft.trim();
+    const next = options?.find((option) => option.label.toLowerCase() === text.toLowerCase())?.value ?? text;
 
-    if (!next || value.includes(next)) {
+    if (!next || value.includes(next) || value.length >= maxItems) {
       setDraft("");
       return;
     }
@@ -183,7 +192,10 @@ export function ChipInput({
       return;
     }
 
-    updateValue([...value, nextValue]);
+    if (value.length < maxItems) {
+      updateValue([...value, nextValue]);
+      setDraft("");
+    }
   };
 
 
@@ -215,7 +227,7 @@ export function ChipInput({
             boxSizing: "border-box",
           }}
         >
-          <Box sx={{ position: "relative", width: "100%" }}>
+          <Box sx={{ position: "relative", width: "100%", pr: clearIconSrc && value.length ? 4 : 0 }}>
             <Box
               data-testid="chip-input-chips-viewport"
               sx={{
@@ -235,10 +247,11 @@ export function ChipInput({
                   key={item}
                   label={optionLabelByValue(options, item)}
                   onDelete={() => updateValue(value.filter((current) => current !== item))}
+                  deleteIconSrc={deleteIconSrc}
                 />
               ))}
             </Box>
-            <InputBase
+            {!hideInputAtLimit || value.length < maxItems ? <InputBase
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               onKeyDown={(event) => {
@@ -251,7 +264,7 @@ export function ChipInput({
               inputProps={{ "aria-label": placeholder }}
               sx={{
                 width: "100%",
-                mt: 2,
+                mt: value.length ? 2 : 0,
                 color: "#111111",
                 fontFamily: "Manrope, var(--font-manrope), sans-serif",
                 fontSize: 20,
@@ -269,7 +282,12 @@ export function ChipInput({
                   },
                 },
               }}
-            />
+            /> : null}
+            {clearIconSrc && value.length > 0 ? (
+              <ButtonBase aria-label="Очистить все навыки" onClick={() => { updateValue([]); setDraft(""); }} sx={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", width: 20, height: 20 }}>
+                <Box component="img" src={clearIconSrc} alt="" sx={{ width: 20, height: 20 }} />
+              </ButtonBase>
+            ) : null}
           </Box>
         </Box>
         {options && isOptionsOpen ? (
@@ -299,6 +317,7 @@ export function ChipInput({
                     data-testid="chip-input-active-option"
                     role="option"
                     aria-selected={checked}
+                    disabled={!checked && value.length >= maxItems}
                     disableRipple
                     onClick={() => toggleValue(option.value)}
                     sx={{

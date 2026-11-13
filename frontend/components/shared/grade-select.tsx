@@ -10,6 +10,8 @@ export type GradeSelectProps = Omit<BoxProps, "onChange"> & {
   value: string;
   onChange?: (value: string) => void;
   accentColorHex?: string;
+  previousIconSrc?: string;
+  nextIconSrc?: string;
 };
 
 
@@ -28,7 +30,7 @@ function GradeArrow({ direction }: { direction: "left" | "right" }) {
   );
 }
 
-export function GradeSelect({ options, value, onChange, accentColorHex, sx, ...props }: GradeSelectProps) {
+export function GradeSelect({ options, value, onChange, accentColorHex, previousIconSrc, nextIconSrc, sx, ...props }: GradeSelectProps) {
   const accent = resolveHexColor(accentColorHex, "#3d82ff");
   const selectedIndex = Math.max(options.indexOf(value), 0);
   const previous = options[selectedIndex - 1];
@@ -70,7 +72,7 @@ export function GradeSelect({ options, value, onChange, accentColorHex, sx, ...p
           "&.Mui-disabled": { opacity: 0.35 },
         }}
       >
-        <GradeArrow direction="left" />
+        {previousIconSrc ? <Box component="img" src={previousIconSrc} alt="" /> : <GradeArrow direction="left" />}
       </ButtonBase>
 
       <Box
@@ -78,7 +80,6 @@ export function GradeSelect({ options, value, onChange, accentColorHex, sx, ...p
           flex: 1,
           minWidth: 0,
           overflow: "hidden",
-          py: 1.5,
         }}
       >
         <Box
@@ -158,7 +159,7 @@ export function GradeSelect({ options, value, onChange, accentColorHex, sx, ...p
           "&.Mui-disabled": { opacity: 0.35 },
         }}
       >
-        <GradeArrow direction="right" />
+        {nextIconSrc ? <Box component="img" src={nextIconSrc} alt="" /> : <GradeArrow direction="right" />}
       </ButtonBase>
     </Box>
   );

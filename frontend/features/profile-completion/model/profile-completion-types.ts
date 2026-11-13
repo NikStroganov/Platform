@@ -128,22 +128,12 @@ export const profileCompletionSteps: ProfileCompletionStep[] = [
     id: "skills",
     title: "Навыки",
     description: "Добавьте ключевые навыки, чтобы профиль был точнее.",
-    canContinue: () => true,
+    canContinue: (state) => state.skills.length > 0 && state.skills.length <= 20,
   },
   {
     id: "review",
     title: "Это все, честно! Осталось только свериться",
     primaryLabel: "Сохранить",
-    canContinue: (state) =>
-      Boolean(
-        state.nickname.trim() &&
-          state.companyId &&
-          state.countryId &&
-          state.professionId &&
-          state.seniorityLevel &&
-          state.workFormat &&
-          Number(state.workExperienceYears) >= 0 &&
-          Number(state.salary) >= 0,
-      ),
+    canContinue: (state) => profileCompletionSteps.every((step) => step.id === "review" || step.canContinue(state)),
   },
 ];

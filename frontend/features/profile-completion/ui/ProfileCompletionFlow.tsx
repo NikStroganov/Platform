@@ -42,6 +42,8 @@ import { NicknameStep } from "./NicknameStep";
 import { ProfessionStep } from "./ProfessionStep";
 import { ProfileCompletionLayout } from "./ProfileCompletionLayout";
 import { SeniorityStep } from "./SeniorityStep";
+import { SkillsStep } from "./SkillsStep";
+import { ReviewStep } from "./ReviewStep";
 
 const visibleSteps = profileCompletionSteps.filter((step) => step.progressVisible !== false);
 const visibleStepIds = new Set(visibleSteps.map((step) => step.id));
@@ -81,18 +83,14 @@ function getCityAccent(name?: string) {
   return accents[name ?? ""] ?? "#4489dd";
 }
 
-function getCompanyAccent(name?: string) {
-  const accents: Record<string, string> = {
-    "\u0412\u043a\u043e\u043d\u0442\u0430\u043a\u0442\u0435": "#1ca2d3",
-    "\u0421\u0431\u0435\u0440\u0431\u0430\u043d\u043a": "#21a038",
-    "\u0414\u0437\u0435\u043d": "#111111",
-    OZON: "#005bff",
-    WildBerries: "#a73591",
-    "\u0421\u0430\u043c\u043e\u043a\u0430\u0442": "#00a88e",
-  };
-
-  return accents[name ?? ""] ?? "#3d82ff";
-}
+const companyPalette: Record<string, { colorHex: string; backgroundHex: string; borderHex: string }> = {
+  "Вконтакте": { colorHex: "#1ca2d3", backgroundHex: "#1ca2d326", borderHex: "#1ca2d333" },
+  "Сбербанк": { colorHex: "#239e09", backgroundHex: "#37d31c26", borderHex: "#1cd32233" },
+  "Дзен": { colorHex: "#757575", backgroundHex: "#eaeaea", borderHex: "#b4b4b433" },
+  OZON: { colorHex: "#4489dd", backgroundHex: "#1c6ed326", borderHex: "#1c6ed333" },
+  WildBerries: { colorHex: "#d546dc", backgroundHex: "#d31cc726", borderHex: "#c11cd333" },
+  "Самокат": { colorHex: "#e25050", backgroundHex: "#b4020226", borderHex: "#b4020233" },
+};
 
 export function ProfileCompletionFlow() {
   const router = useRouter();
@@ -130,7 +128,7 @@ export function ProfileCompletionFlow() {
         getTopCitiesMock(),
         getWorkFormatsMock(),
         getSeniorityLevelsMock(),
-        searchCatalogMock({ type: "SKILL", query: "", size: 20 }),
+        searchCatalogMock({ type: "SKILL", query: "", size: 50 }),
         searchCatalogMock({ type: "COUNTRY", query: "", size: 20 }),
       ]);
 
@@ -139,20 +137,27 @@ export function ProfileCompletionFlow() {
       }
 
       setProfessionItems(
-        professions.map((item) => ({ value: item.professionId ?? "", label: item.name ?? "Профессия", colorHex: "#3d82ff" })),
+        professions.map((item) => ({ value: item.professionId ?? "", label: item.name ?? "Профессия", colorHex: getProfessionAccent(item.name), backgroundHex: getProfessionAccent(item.name) === "#1ca2d3" ? undefined : item.backgroundColor })),
       );
       setCompanyItems(
         companies.map((item) => ({
           value: item.companyId ?? "",
           label: item.name ?? "Компания",
           logoUrl: item.logoKey,
-          colorHex: getCompanyAccent(item.name),
-          backgroundHex: item.backgroundColor,
+          ...(companyPalette[item.name ?? ""] ?? { colorHex: "#3d82ff", backgroundHex: item.backgroundColor }),
         })),
       );
       setCityItems(cities.map((item) => ({ value: item.cityId ?? "", label: item.name ?? "Город", colorHex: getCityAccent(item.name), backgroundHex: item.backgroundColor })));
       setWorkFormatOptions(formats.map((item) => ({ value: item.code ?? "", label: item.label ?? item.code ?? "" })));
       setSeniorityOptions(seniority.map((item) => ({ value: item.code ?? "", label: item.label ?? item.code ?? "" })));
+      const defaultSeniority = seniority[1] ?? seniority[0];
+      if (defaultSeniority?.code) {
+        setState((current) => current.seniorityLevel ? current : {
+          ...current,
+          seniorityLevel: defaultSeniority.code as ProfileCompletionState["seniorityLevel"],
+          display: { ...current.display, seniorityLevel: makeDisplay(defaultSeniority.label ?? defaultSeniority.code ?? "") },
+        });
+      }
       setSkillOptions(skills.map((item) => ({ value: item.id ?? item.name ?? "", label: item.name ?? "Навык" })));
       setCountrySearch(countries.map((item) => ({ value: item.id ?? item.name ?? "", label: item.name ?? "" })));
     }
@@ -173,6 +178,7 @@ export function ProfileCompletionFlow() {
   }
 
   function goToStep(index: number) {
+    if (loading) return;
     const clamped = Math.min(Math.max(index, 0), profileCompletionSteps.length - 1);
     if (clamped <= maxStep) {
       setError("");
@@ -181,6 +187,7 @@ export function ProfileCompletionFlow() {
   }
 
   async function handleNext() {
+    if (loading) return;
     setError("");
 
     if (!canContinue) {
@@ -201,7 +208,10 @@ export function ProfileCompletionFlow() {
     if (step.id === "review") {
       try {
         setLoading(true);
-        await api.saveOnboarding(buildOnboardingDto(state));
+        const response = await api.saveOnboarding(buildOnboardingDto(state));
+        if (response.data?.success === false) {
+          throw new Error("Onboarding was not saved");
+        }
         router.replace("/");
       } catch (submitError) {
         console.error("saveOnboarding failed", submitError);
@@ -461,6 +471,26 @@ export function ProfileCompletionFlow() {
         onStepSelect={handleVisibleStepSelect}
       />
     );
+  }
+
+  if (step.id === "skills") {
+    return (
+      <SkillsStep
+        value={state.skills}
+        options={skillOptions}
+        currentStep={Math.max(visibleStepIndex, 0)}
+        stepCount={visibleSteps.length}
+        loading={loading}
+        error={error}
+        onChange={(skills) => updateState({ skills })}
+        onNext={handleNext}
+        onStepSelect={handleVisibleStepSelect}
+      />
+    );
+  }
+
+  if (step.id === "review") {
+    return <ReviewStep state={state} skillOptions={skillOptions} currentStep={Math.max(visibleStepIndex, 0)} stepCount={visibleSteps.length} canContinue={canContinue} loading={loading} error={error} onNext={handleNext} onStepSelect={handleVisibleStepSelect} />;
   }
 
   const content = renderStepContent({
