@@ -46,3 +46,12 @@ logging:
 
 app:
   static-base-url: https://api.careit.tech/company-logos/
+
+smart-search:
+  minimum-similarity: 0.30
+  minimum-partial-query-length: 3
+  minimum-fuzzy-query-length: 4
+
+skills:
+  max-selected: 15
+  recommendations-limit: 10

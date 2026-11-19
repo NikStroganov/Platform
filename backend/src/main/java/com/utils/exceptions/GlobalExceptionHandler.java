@@ -1,5 +1,6 @@
 package com.utils.exceptions;
 
+import com.smartsearch.exception.InvalidSearchRequestException;
 import com.utils.enums.Errors;
 import com.utils.responsevalidator.ApiError;
 import jakarta.persistence.EntityNotFoundException;
@@ -75,5 +76,13 @@ public class GlobalExceptionHandler {
                         Errors.INTERNAL_SYSTEM_ERROR.getMessage(),
                         List.of()
                 ));
+    }
+
+    @ExceptionHandler(InvalidSearchRequestException.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidSearchRequest(InvalidSearchRequestException ex) {
+        return ResponseEntity.badRequest().body(ApiResponse.error(
+                "Ошибка поискового запроса",
+                List.of(new ApiError(ex.getField(), ex.getMessage()))
+        ));
     }
 }

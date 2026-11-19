@@ -6,5 +6,4 @@ public record TopProfessionDto(
         UUID professionId,
         String name,
         String backgroundColor
-)
-{}
+) {}

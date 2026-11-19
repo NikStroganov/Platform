@@ -51,7 +51,7 @@ public class OnboardingController {
         );
     }
 
-    @PostMapping("/status")
+    @GetMapping("/status")
     public ResponseEntity<ApiResponse<OnboardingStatusResponse>> getOnboardingStatus(
             @AuthenticationPrincipal Jwt jwt
     ) {

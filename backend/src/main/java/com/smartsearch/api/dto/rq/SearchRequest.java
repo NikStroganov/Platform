@@ -7,21 +7,21 @@ import jakarta.validation.constraints.*;
 //TODO доработать обработчик исключений для corner кейсов на min, max
 public record SearchRequest(
 
-        @NotNull
+        @NotNull(message = "Укажите тип каталога")
         @Schema(description = "Тип поиска")
         CatalogType type,
-        @NotBlank
-        @Size(max = 100)
+        @NotBlank(message = "Поисковый запрос не должен быть пустым")
+        @Size(max = 100, message = "Поисковый запрос должен содержать не более 100 символов")
         @Schema(description = "Запрос пользователя в поиске")
         String query,
 
-        @Min(0)
-        @Schema(description = "Номер страницы из общего списка")
+        @Min(value = 0, message = "Номер страницы не может быть отрицательным")
+        @Schema(description = "Номер страницы, начиная с 0", defaultValue = "0")
         Integer page,
 
-        @Min(0)
-        @Max(50)
-        @Schema(description = "Количество выводимых элементов")
+        @Min(value = 1, message = "Размер страницы должен быть не меньше 1")
+        @Max(value = 50, message = "Размер страницы должен быть не больше 50")
+        @Schema(description = "Количество элементов на странице", defaultValue = "50")
         Integer size
 ) {
     public SearchRequest {

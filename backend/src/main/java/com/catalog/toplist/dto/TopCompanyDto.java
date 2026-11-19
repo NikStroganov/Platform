@@ -7,5 +7,4 @@ public record TopCompanyDto(
         String name,
         String logoKey,
         String backgroundColor
-)
-{}
+) {}

@@ -18,17 +18,17 @@ public class SmartSearchController {
     private final SmartSearchService searchService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<SearchResponse>> search(@Valid @ModelAttribute SearchRequest request) {
-        return ResponseEntity
-                .ok()
-                .body(ApiResponse.success(
-                        "Smart search result",
-                        searchService.smartSearch(
-                                request.type(),
-                                request.query(),
-                                request.page(),
-                                request.size()
-                        )
-                ));
+    public ResponseEntity<ApiResponse<SearchResponse>> search(
+            @Valid @ModelAttribute SearchRequest request
+    ) {
+        return ResponseEntity.ok().body(ApiResponse.success(
+                "Smart search result",
+                searchService.smartSearch(
+                        request.type(),
+                        request.query(),
+                        request.page(),
+                        request.size()
+                )
+        ));
     }
 }
