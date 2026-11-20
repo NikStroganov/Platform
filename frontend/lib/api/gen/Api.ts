@@ -16,6 +16,9 @@ import {
   ApiResponseListTopCityDto,
   ApiResponseListTopCompanyDto,
   ApiResponseListTopProfessionDto,
+  ApiResponseListTopSkillDto,
+  ApiResponseNicknameAvailabilityDto,
+  ApiResponseOnboardingStatusResponse,
   ApiResponseProfileDto,
   ApiResponseSearchResponse,
   ApiResponseUserExistResponse,
@@ -259,6 +262,62 @@ export class Api<
   ) =>
     this.request<ApiResponseSearchResponse, any>({
       path: `/api/v1/search_result`,
+      method: "GET",
+      query: query,
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags onboarding-controller
+   * @name GetOnboardingStatus
+   * @request GET:/api/v1/onboarding/status
+   */
+  getOnboardingStatus = (params: RequestParams = {}) =>
+    this.request<ApiResponseOnboardingStatusResponse, any>({
+      path: `/api/v1/onboarding/status`,
+      method: "GET",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags onboarding-controller
+   * @name CheckNicknameAvailability
+   * @request GET:/api/v1/onboarding/nickname/availability
+   */
+  checkNicknameAvailability = (
+    query: {
+      /**
+       * @minLength 2
+       * @maxLength 50
+       */
+      nickname: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<ApiResponseNicknameAvailabilityDto, any>({
+      path: `/api/v1/onboarding/nickname/availability`,
+      method: "GET",
+      query: query,
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags top-skill-controller
+   * @name GetTopSkills
+   * @request GET:/api/v1/catalog/skills/top
+   */
+  getTopSkills = (
+    query: {
+      /** @format uuid */
+      professionId: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<ApiResponseListTopSkillDto, any>({
+      path: `/api/v1/catalog/skills/top`,
       method: "GET",
       query: query,
       ...params,
