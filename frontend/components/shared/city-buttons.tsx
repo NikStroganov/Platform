@@ -34,6 +34,7 @@ export function CityButtons({ items, value, onChange, sx, ...props }: CityButton
         return (
           <ButtonBase
             key={item.value}
+            data-motion="chip"
             disableRipple
             aria-pressed={selected}
             onClick={() => onChange?.(item.value)}

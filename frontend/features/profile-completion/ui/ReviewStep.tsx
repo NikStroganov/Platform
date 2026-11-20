@@ -8,6 +8,7 @@ import { CompanyLogo } from "@/components/shared/company-logo";
 import { OnboardingScreen } from "./OnboardingScreen";
 import type { ProfileCompletionState } from "../model/profile-completion-types";
 import type { ChipInputOption } from "@/components/shared/chip-input";
+import { useCardTilt } from "./use-card-tilt";
 
 type ReviewStepProps = {
   state: ProfileCompletionState;
@@ -38,6 +39,7 @@ function experienceLabel(value: string) {
 
 export function ReviewStep({ state, skillOptions, currentStep, stepCount, canContinue, loading, error, onNext, onStepSelect }: ReviewStepProps) {
   const [showAllSkills, setShowAllSkills] = useState(false);
+  const cardRef = useCardTilt();
   const skills = showAllSkills ? state.skills : state.skills.slice(0, 5);
   const formatter = new Intl.NumberFormat("ru-RU", { style: "currency", currency: state.currency, currencyDisplay: "narrowSymbol", minimumFractionDigits: 0, maximumFractionDigits: 2 });
   const money = (value: string) => formatter.format(Number(value.replace(",", ".")));
@@ -51,7 +53,7 @@ export function ReviewStep({ state, skillOptions, currentStep, stepCount, canCon
 
       <Box sx={{ display: "flex", justifyContent: "center", mt: { xs: 0, md: "134px" } }}>
         <Box sx={{ width: "100%", maxWidth: 694, display: "flex", flexDirection: { xs: "column", md: "row" }, alignItems: { xs: "center", md: "stretch" }, justifyContent: "center", gap: 4 }}>
-          <Box data-testid="review-profile-card" sx={{ width: 262, maxWidth: "100%", minHeight: 344, flexShrink: 0, border: "2px solid #ffe6c9", borderRadius: "32px", bgcolor: "#ffffff", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 3, py: 4, px: 3 }}>
+          <Box ref={cardRef} tabIndex={0} aria-label="Карточка профиля. Стрелки наклоняют карточку" data-testid="review-profile-card" sx={{ width: 262, maxWidth: "100%", minHeight: 344, flexShrink: 0, border: "2px solid #ffe6c9", borderRadius: "32px", bgcolor: "#ffffff", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 3, py: 4, px: 3, "&:focus-visible": { outline: "2px solid #3d82ff", outlineOffset: 4 } }}>
             <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 262, height: 396, opacity: 0.2, filter: "blur(6.15px)", overflow: "hidden", pointerEvents: "none" }}>
               <Box component="img" src="/onboarding/review-card-background.png" alt="" sx={{ position: "absolute", height: "111.63%", width: "253.02%", maxWidth: "none", left: "-69.07%", top: "-6.49%" }} />
             </Box>

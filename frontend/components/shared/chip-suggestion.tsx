@@ -28,6 +28,7 @@ export function ChipSuggestion({ items, onSelect, colorHex, plusIconSrc, disable
       {items.map((item) => (
         <ButtonBase
           key={item.value}
+          data-motion="skill-choice"
           disableRipple
           disabled={disabled}
           onClick={() => onSelect?.(item.value)}

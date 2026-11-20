@@ -1,9 +1,10 @@
 ﻿import type { OnboardingDto } from "@/lib/api/gen/data-contracts";
 
 import type { ProfileCompletionState } from "./profile-completion-types";
+import { normalizeAmount } from "./onboarding-validation";
 
 function parseNumber(value: string, fallback = 0): number {
-  const parsed = Number(value.replace(",", "."));
+  const parsed = Number(normalizeAmount(value).replace(",", "."));
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 

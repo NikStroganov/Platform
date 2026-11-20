@@ -36,6 +36,7 @@ export function CompanyButtons({ items, value, onChange, sx, ...props }: Company
         return (
           <ButtonBase
             key={item.value}
+            data-motion="company"
             disableRipple
             aria-pressed={selected}
             onClick={() => onChange?.(item.value)}

@@ -140,21 +140,40 @@ try {
   expectEqual(initialMetrics.welcome.exists, true, "welcome slide scene exists");
   expectEqual(initialMetrics.anonymous.exists, true, "anonymous slide scene exists");
   expectOpacityNear(initialMetrics.welcome.layerOpacity, 1, "welcome slide is visible on first render");
-  expectOpacityNear(initialMetrics.anonymous.layerOpacity, 0, "anonymous slide is hidden on first render");
+  expectOpacityNear(initialMetrics.anonymous.layerOpacity, 0, "explanation is mounted but hidden until the cards scatter");
+  expectEqual(await page.locator('[data-node-id="2031:5313"]').locator("..").getAttribute("aria-hidden"), "true", "covered explanation is hidden from assistive technology");
   expectNear(initialMetrics.welcome.rect.w, 1440, 1, "welcome scene keeps Figma width at desktop viewport");
   expectNear(initialMetrics.welcome.rect.h, 900, 1, "welcome scene keeps Figma height at desktop viewport");
 
   fs.mkdirSync(path.dirname(screenshotPath), { recursive: true });
   await page.screenshot({ path: screenshotPath, fullPage: false });
 
-  await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-node-id="2031:5313"]').parentElement).opacity === "1", undefined, { timeout: 10000 });
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-node-id="2031:6237"]').parentElement).opacity === "0", undefined, { timeout: 10000 });
   const afterTimerMetrics = await page.evaluate(getIntroMetrics);
   expectOpacityNear(afterTimerMetrics.welcome.layerOpacity, 0, "timer hides welcome slide");
   expectOpacityNear(afterTimerMetrics.anonymous.layerOpacity, 1, "timer reveals anonymity slide");
   expectEqual(await page.locator('[data-testid^="intro-debug-"]').count(), 0, "intro does not expose debug controls");
-  await page.getByRole("button", { name: "Идем дальше", exact: true }).click();
+  // The intro now advances automatically after the cards scatter and the copy leaves.
   await page.getByPlaceholder("Введи свой никнейм").waitFor();
-  expectEqual(await page.getByRole("tab", { selected: true }).getAttribute("aria-label"), "Шаг 1", "continue opens nickname step");
+  expectEqual(await page.getByRole("tab", { selected: true }).getAttribute("aria-label"), "Шаг 1", "automatic intro completion opens nickname step");
+
+  // Skipping either phase must cancel all remaining intro timers.
+  for (const phase of ["welcome", "anonymous"]) {
+    await page.goto(onboardingUrl, { waitUntil: "domcontentloaded" });
+    await page.locator(`[data-intro-phase="${phase}"]`).waitFor();
+    await page.getByRole("button", { name: "Идем дальше", exact: true }).click();
+    await page.getByPlaceholder("Введи свой никнейм").fill("MotionCheck");
+    await page.getByRole("button", { name: "Далее", exact: true }).click();
+    await page.getByPlaceholder("Название компании").waitFor();
+    await page.waitForTimeout(5000);
+    expectEqual(await page.getByPlaceholder("Название компании").count(), 1, `skip during ${phase} does not advance the company step later`);
+  }
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto(onboardingUrl, { waitUntil: "domcontentloaded" });
+  await page.getByPlaceholder("Введи свой никнейм").waitFor({ timeout: 5000 });
+  expectEqual(await page.locator("[data-intro-phase]").count(), 0, "reduced motion completes the shortened intro");
+  expectEqual(await page.locator("main").evaluate((main) => main.getAnimations({ subtree: true }).length), 0, "reduced motion disables spatial animations");
   console.log(JSON.stringify({ appUrl, initialMetrics, afterTimerMetrics }, null, 2));
   console.log(`Saved screenshot: ${screenshotPath}`);
 } finally {

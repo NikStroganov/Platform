@@ -1,7 +1,6 @@
 "use client";
 
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 
 import { FieldInput } from "@/components/shared/field-input";
 import { GradeSelect } from "@/components/shared/grade-select";
@@ -22,6 +21,8 @@ export type SeniorityStepProps = {
   hasCompanyGrade: boolean;
   companyGrade: string;
   workExperienceYears: string;
+  companyGradeError?: string;
+  experienceError?: string;
   canContinue: boolean;
   loading?: boolean;
   error?: string;
@@ -35,18 +36,17 @@ export type SeniorityStepProps = {
   onStepSelect: (index: number) => void;
 };
 
-export function SeniorityStep({ gradeOptions, gradeValue, hasCompanyGrade, companyGrade, workExperienceYears, canContinue, loading, error, currentStep, stepCount, onGradeChange, onHasCompanyGradeChange, onCompanyGradeChange, onWorkExperienceYearsChange, onNext, onStepSelect }: SeniorityStepProps) {
+export function SeniorityStep({ gradeOptions, gradeValue, hasCompanyGrade, companyGrade, workExperienceYears, companyGradeError, experienceError, canContinue, loading, error, currentStep, stepCount, onGradeChange, onHasCompanyGradeChange, onCompanyGradeChange, onWorkExperienceYearsChange, onNext, onStepSelect }: SeniorityStepProps) {
   return (
     <OnboardingScreen nodeId={hasCompanyGrade ? "2238:6803" : "2238:6857"} title={title} description={<>{descriptionLine1}<br />{descriptionLine2}</>} descriptionWidth={480} descriptionGap={24} contentGap={hasCompanyGrade ? 112 : 80} canContinue={canContinue} loading={loading} error={error} currentStep={currentStep} stepCount={stepCount} onNext={onNext} onStepSelect={onStepSelect}>
       <Box sx={{ display: "grid", gap: 6 }}>
         <GradeSelect options={gradeOptions} value={gradeValue} onChange={onGradeChange} previousIconSrc="/onboarding/grade-chevron-left.svg" nextIconSrc="/onboarding/grade-chevron-right.svg" sx={{ gap: { xs: 1.5, md: 4 }, "& > button": { width: { xs: 48, md: 64 }, height: { xs: 48, md: 64 } }, "& [role=option]": { fontSize: { xs: 16, md: 24 }, "&[aria-selected=true]": { fontSize: { xs: 32, md: 48 } } } }} />
         <Box sx={{ display: "grid", gap: 2 }}>
           <ToggleWithLabel label={toggleLabel} checked={hasCompanyGrade} onChange={onHasCompanyGradeChange} labelSx={{ fontSize: 14, lineHeight: "20px" }} />
-          {hasCompanyGrade ? <FieldInput value={companyGrade} onChange={(event) => onCompanyGradeChange(event.currentTarget.value)} placeholder={gradePlaceholder} /> : null}
+          {hasCompanyGrade ? <FieldInput id="company-grade" error={Boolean(companyGradeError)} helperText={companyGradeError} value={companyGrade} onChange={(event) => onCompanyGradeChange(event.currentTarget.value)} placeholder={gradePlaceholder} /> : null}
         </Box>
         <Box sx={{ display: "grid", gap: 1 }}>
-          <FieldInput type="number" inputMode="numeric" value={workExperienceYears} onChange={(event) => onWorkExperienceYearsChange(event.currentTarget.value)} placeholder={experiencePlaceholder} postfix="лет" />
-          <Typography sx={{ color: "#adadad", fontSize: 14, fontWeight: 500, lineHeight: "18px" }}>Если работаете меньше года, то указывайте «1»</Typography>
+          <FieldInput id="work-experience" inputMode="numeric" error={Boolean(experienceError)} helperText={experienceError || "Если работаете меньше года, то указывайте «1»"} value={workExperienceYears} onChange={(event) => onWorkExperienceYearsChange(event.currentTarget.value)} placeholder={experiencePlaceholder} postfix="лет" />
         </Box>
       </Box>
     </OnboardingScreen>

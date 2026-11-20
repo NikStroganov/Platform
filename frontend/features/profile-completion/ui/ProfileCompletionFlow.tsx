@@ -27,6 +27,7 @@ import {
   searchCatalogMock,
 } from "../api/profile-completion-api";
 import { buildOnboardingDto } from "../model/build-onboarding-dto";
+import { onboardingFieldErrors } from "../model/onboarding-validation";
 import {
   initialProfileCompletionState,
   profileCompletionSteps,
@@ -117,6 +118,7 @@ export function ProfileCompletionFlow() {
   const step = profileCompletionSteps[currentStep];
   const visibleStepIndex = visibleSteps.findIndex((item) => item.id === step.id);
   const canContinue = step.canContinue(state);
+  const fieldErrors = onboardingFieldErrors(state);
 
   React.useEffect(() => {
     let active = true;
@@ -170,6 +172,7 @@ export function ProfileCompletionFlow() {
   }, []);
 
   function updateState(patch: Partial<ProfileCompletionState>) {
+    setError("");
     setState((current) => ({ ...current, ...patch }));
   }
 
@@ -200,7 +203,7 @@ export function ProfileCompletionFlow() {
       const result = await checkNicknameAvailabilityMock(state.nickname);
       setLoading(false);
       if (!result.available) {
-        setError("Этот никнейм уже занят");
+        setError("Никнейм уже занят");
         return;
       }
     }
@@ -262,7 +265,7 @@ export function ProfileCompletionFlow() {
         value={state.nickname}
         canContinue={canContinue}
         loading={loading}
-        error={error}
+        error={fieldErrors.nickname || error}
         currentStep={Math.max(visibleStepIndex, 0)}
         stepCount={visibleSteps.length}
         onChange={(nickname) => updateState({ nickname })}
@@ -423,6 +426,8 @@ export function ProfileCompletionFlow() {
         gradeValue={selectedGradeLabel}
         hasCompanyGrade={state.hasCompanyGrade}
         companyGrade={state.companyGrade}
+        companyGradeError={fieldErrors.companyGrade}
+        experienceError={fieldErrors.workExperienceYears}
         workExperienceYears={state.workExperienceYears}
         canContinue={canContinue}
         loading={loading}
@@ -455,6 +460,8 @@ export function ProfileCompletionFlow() {
       <CompensationStep
         currency={state.currency}
         salary={state.salary}
+        salaryError={fieldErrors.salary}
+        bonusError={fieldErrors.bonus}
         hasBonus={state.hasBonus}
         bonus={state.bonus}
         currencyOptions={currencyOptions}

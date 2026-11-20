@@ -14,11 +14,11 @@ const manrope = Manrope({
 
 const preview: Preview = {
   decorators: [
-    (Story) => (
+    (Story, context) => (
       <div className={manrope.variable}>
         <ThemeProvider theme={appTheme}>
           <CssBaseline />
-          <div style={{ padding: 24, background: "#f2f2f2", minHeight: "100vh" }}>
+          <div style={{ padding: context.parameters.figmaCanvas ? 0 : 24, background: context.parameters.figmaCanvas ? "#fff3f3" : "#f2f2f2", minHeight: "100vh" }}>
             <Story />
           </div>
         </ThemeProvider>

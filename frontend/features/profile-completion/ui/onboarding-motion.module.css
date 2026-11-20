@@ -1,0 +1,103 @@
+/* Motion from CareIT 1.2.1; all selectors are scoped to onboarding. */
+.root :global(button),
+.root :global(input),
+.root :global(.MuiInputBase-root) {
+  transition: background-color 180ms, border-color 180ms, opacity 180ms, box-shadow 180ms;
+}
+
+.reveal {
+  animation: reveal 420ms cubic-bezier(.2, .75, .22, 1) both;
+}
+
+.introEnter {
+  animation: intro-enter 650ms cubic-bezier(.4, 0, .2, 1) both;
+}
+.introContentEnter {
+  animation: reveal 650ms cubic-bezier(.4, 0, .2, 1) both;
+}
+
+.root :global([data-motion="company"]) {
+  transition: transform 180ms, border-color 180ms, box-shadow 180ms;
+}
+.root :global([data-motion="company"][aria-pressed="true"]) {
+  box-shadow: 0 0 0 3px #3d82ff12;
+}
+.root :global([data-motion="chip"]) {
+  transition: transform 180ms, filter 180ms, background-color 180ms, border-color 180ms;
+}
+.root :global([data-motion="segment"]) {
+  transition: background-color 180ms, color 180ms;
+}
+.root :global([data-motion="skill-choice"]) {
+  transition: background-color 180ms, box-shadow 180ms;
+}
+.root :global([data-motion="grade-option"]) {
+  transition: transform 420ms cubic-bezier(.2, .75, .22, 1), color 420ms, font-size 420ms, line-height 420ms, opacity 420ms;
+}
+.root :global([data-testid="chip-input-active-chip"]) {
+  animation: skill-enter 200ms ease-out;
+}
+.root :global([data-motion="city"]) {
+  animation: city-enter 200ms ease-out;
+}
+.root :global(.MuiSwitch-switchBase) {
+  transition: transform 220ms cubic-bezier(.2, .75, .22, 1), color 180ms;
+}
+.root :global(.MuiSwitch-track) {
+  transition: background-color 180ms;
+}
+.root :global([data-motion="primary"]:active:not(:disabled)) {
+  translate: 0 1px;
+}
+
+@media (hover: hover) {
+  .root :global([data-motion="primary"]:hover:not(:disabled)) {
+    background-color: #2773fa;
+    box-shadow: 0 5px 18px #3d82ff24;
+  }
+  .root :global([data-motion="company"]:hover:not(:disabled)) {
+    transform: translateY(-3px);
+    border-color: currentColor;
+  }
+  .root :global([data-motion="chip"]:hover:not(:disabled)) {
+    filter: brightness(.97);
+    transform: translateY(-1px);
+  }
+  .root :global([data-motion="segment"][aria-pressed="false"]:hover) {
+    background-color: #eef3fb;
+  }
+  .root :global([data-motion="skill-choice"]:hover:not(:disabled)) {
+    background-color: #cddfff;
+    box-shadow: inset 0 0 0 1px #97bcff;
+  }
+}
+
+@keyframes reveal {
+  from { opacity: 0; translate: 0 14px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes intro-enter {
+  from { opacity: 0; translate: 0 8px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes skill-enter {
+  from { opacity: 0; scale: .88; }
+  to { opacity: 1; scale: 1; }
+}
+@keyframes city-enter {
+  from { opacity: 0; translate: 0 -6px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root, .root *, .root *::before, .root *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .root :global([data-motion="company"]:hover),
+  .root :global([data-motion="chip"]:hover),
+  .root :global([data-testid="review-profile-card"]) {
+    transform: none !important;
+  }
+  .root :global([data-motion="primary"]:active) { translate: none; }
+}

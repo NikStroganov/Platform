@@ -1,5 +1,7 @@
 ﻿import type { OnboardingDto } from "@/lib/api/gen/data-contracts";
 
+import { onboardingFieldErrors, maxSkills } from "./onboarding-validation";
+
 export type WorkFormat = OnboardingDto["workFormat"];
 export type SeniorityLevel = OnboardingDto["seniorityLevel"];
 export type CurrencyCode = OnboardingDto["currency"];
@@ -88,7 +90,7 @@ export const profileCompletionSteps: ProfileCompletionStep[] = [
     id: "nickname",
     title: "Добро пожаловать на CareIT",
     description: "Мы используем никнеймы, чтобы данные были полностью анонимными.",
-    canContinue: (state) => state.nickname.trim().length >= 2,
+    canContinue: (state) => Boolean(state.nickname.trim()) && !onboardingFieldErrors(state).nickname,
   },
   {
     id: "company",
@@ -116,19 +118,25 @@ export const profileCompletionSteps: ProfileCompletionStep[] = [
     id: "seniority",
     title: "Уровень в профессии и период работы",
     description: "Подберите ближайший грейд и укажите общий опыт.",
-    canContinue: (state) => Boolean(state.seniorityLevel && state.workExperienceYears.trim()) && Number(state.workExperienceYears) >= 0,
+    canContinue: (state) => {
+      const errors = onboardingFieldErrors(state);
+      return Boolean(state.seniorityLevel && state.workExperienceYears.trim()) && !errors.workExperienceYears && !errors.companyGrade;
+    },
   },
   {
     id: "compensation",
     title: "Зарплата",
     description: "Укажите регулярный доход и бонус, если он есть.",
-    canContinue: (state) => Boolean(state.salary.trim()) && Number(state.salary) >= 0 && (!state.hasBonus || (Boolean(state.bonus.trim()) && Number(state.bonus) >= 0)),
+    canContinue: (state) => {
+      const errors = onboardingFieldErrors(state);
+      return Boolean(state.salary.trim()) && !errors.salary && (!state.hasBonus || (Boolean(state.bonus.trim()) && !errors.bonus));
+    },
   },
   {
     id: "skills",
     title: "Навыки",
     description: "Добавьте ключевые навыки, чтобы профиль был точнее.",
-    canContinue: (state) => state.skills.length > 0 && state.skills.length <= 20,
+    canContinue: (state) => state.skills.length > 0 && state.skills.length <= maxSkills,
   },
   {
     id: "review",

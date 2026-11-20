@@ -45,7 +45,7 @@ export function LocationStep({ countryValue, cityValue, selectedCityValue, workF
       <Box sx={{ display: "grid", gap: 6 }}>
         <SearchInput value={countryValue} options={countryOptions} showOptionsOnFocus clearable hideSearchIcon placeholder={countryPlaceholder} onChange={(event) => onCountryInputChange(event.currentTarget.value)} onOptionSelect={onCountrySelect} />
         {showCityInput ? (
-          <Box sx={{ display: "grid", gap: 3 }}>
+          <Box data-motion="city" sx={{ display: "grid", gap: 3 }}>
             <SearchInput value={cityValue} options={cityOptions} showOptionsOnFocus clearable placeholder={cityPlaceholder} onChange={(event) => onCityInputChange(event.currentTarget.value)} onOptionSelect={onCitySelect} />
             <CityButtons items={cityItems} value={selectedCityValue} onChange={onCityButtonSelect} sx={{ "& > button": { minHeight: 36, lineHeight: "24px" } }} />
           </Box>

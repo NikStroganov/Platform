@@ -9,7 +9,8 @@ import { ChipSuggestion } from "@/components/shared/chip-suggestion";
 import { AppButton } from "@/components/ui/app-button";
 import { OnboardingScreen } from "./OnboardingScreen";
 
-export const maxSkills = 20;
+import { maxSkills } from "../model/onboarding-validation";
+export { maxSkills } from "../model/onboarding-validation";
 
 export type SkillsStepProps = {
   value: string[];
@@ -32,7 +33,7 @@ export function SkillsStep({ value, options, currentStep, stepCount, loading, er
           <Typography data-testid="skills-count" aria-live="polite" sx={{ color: "#adadad", fontSize: 14, fontWeight: 500, lineHeight: "18px" }}>{value.length}/{maxSkills}</Typography>
           <AppButton variant="text" disabled={!value.length} onClick={() => onChange([])} sx={{ color: "#ff4d4f", fontSize: 14, fontWeight: 500, lineHeight: "22px", px: 1.5, py: 0.5, minWidth: 0, minHeight: 30, "&.Mui-disabled": { color: "#adadad" } }}>Очистить</AppButton>
         </Box>
-        <ChipInput active value={value} options={options} onChange={onChange} maxItems={maxSkills} hideInputAtLimit maxVisibleHeight={124} deleteIconSrc="/onboarding/skills-x-close.svg" sx={{ width: "100%", minWidth: 0 }} />
+        <ChipInput helperText={value.length >= maxSkills ? "Уберите навык, чтобы добавить другой" : undefined} active value={value} options={options} onChange={onChange} maxItems={maxSkills} hideInputAtLimit maxVisibleHeight={124} deleteIconSrc="/onboarding/skills-x-close.svg" sx={{ width: "100%", minWidth: 0 }} />
       </Box>
       {value.length > 0 && suggestions.length > 0 ? (
         <Box sx={{ display: "grid", gap: 3, mt: 6 }}>

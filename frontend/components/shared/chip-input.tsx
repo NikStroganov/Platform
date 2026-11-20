@@ -10,6 +10,7 @@ import Typography from "@mui/material/Typography";
 
 import { AppChip } from "@/components/shared/app-chip";
 import { AppTextField } from "@/components/ui/app-text-field";
+import { InputCaption } from "@/components/ui/input-caption";
 
 export type ChipInputOption = {
   value: string;
@@ -28,6 +29,7 @@ export type ChipInputProps = Omit<BoxProps, "onChange"> & {
   hideInputAtLimit?: boolean;
   deleteIconSrc?: string;
   clearIconSrc?: string;
+  helperText?: React.ReactNode;
 };
 
 const defaultPlaceholder = "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u043d\u0430\u0432\u044b\u043a";
@@ -137,6 +139,7 @@ export function ChipInput({
   hideInputAtLimit = false,
   deleteIconSrc,
   clearIconSrc,
+  helperText,
   sx,
   ...props
 }: ChipInputProps) {
@@ -290,6 +293,7 @@ export function ChipInput({
             ) : null}
           </Box>
         </Box>
+        {helperText ? <InputCaption sx={{ mt: 1 }} error>{helperText}</InputCaption> : null}
         {options && isOptionsOpen ? (
           <Box
             data-testid="chip-input-active-list"

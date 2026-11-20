@@ -20,6 +20,8 @@ export type CompensationStepProps = {
   salary: string;
   hasBonus: boolean;
   bonus: string;
+  salaryError?: string;
+  bonusError?: string;
   currencyOptions: SwitchButtonsOption[];
   canContinue: boolean;
   loading?: boolean;
@@ -34,17 +36,17 @@ export type CompensationStepProps = {
   onStepSelect: (index: number) => void;
 };
 
-export function CompensationStep({ currency, salary, hasBonus, bonus, currencyOptions, canContinue, loading, error, currentStep, stepCount, onCurrencyChange, onSalaryChange, onHasBonusChange, onBonusChange, onNext, onStepSelect }: CompensationStepProps) {
+export function CompensationStep({ currency, salary, hasBonus, bonus, salaryError, bonusError, currencyOptions, canContinue, loading, error, currentStep, stepCount, onCurrencyChange, onSalaryChange, onHasBonusChange, onBonusChange, onNext, onStepSelect }: CompensationStepProps) {
   const postfix = currency === "USD" ? "$" : "₽";
   const fieldSx = { width: "100%", "& .MuiOutlinedInput-root": { gap: 2 }, "& .MuiInputAdornment-positionStart, & .MuiInputAdornment-positionStart img": { width: 28, height: 28 } };
   return (
     <OnboardingScreen nodeId="2238:6911" title={title} description={<>{descriptionLine1}<br />{descriptionLine2}</>} descriptionWidth={480} descriptionGap={24} canContinue={canContinue} loading={loading} error={error} currentStep={currentStep} stepCount={stepCount} onNext={onNext} onStepSelect={onStepSelect}>
       <Box sx={{ display: "grid", gap: 3 }}>
         <SwitchButtons options={currencyOptions} value={currency} onChange={onCurrencyChange} />
-        <FieldInput type="number" inputMode="numeric" value={salary} onChange={(event) => onSalaryChange(event.currentTarget.value)} placeholder={salaryPlaceholder} prefixImageSrc="/onboarding/compensation-coins.svg" postfix={postfix} sx={fieldSx} />
+        <FieldInput id="salary" inputMode="numeric" value={salary} error={Boolean(salaryError)} helperText={salaryError} onChange={(event) => onSalaryChange(event.currentTarget.value)} placeholder={salaryPlaceholder} prefixImageSrc="/onboarding/compensation-coins.svg" postfix={postfix} sx={fieldSx} />
         <Box sx={{ display: "grid", gap: 2 }}>
           <ToggleWithLabel label={bonusToggleLabel} checked={hasBonus} onChange={onHasBonusChange} labelSx={{ fontSize: 14, lineHeight: "20px" }} />
-          {hasBonus ? <FieldInput type="number" inputMode="numeric" value={bonus} onChange={(event) => onBonusChange(event.currentTarget.value)} placeholder={bonusPlaceholder} prefixImageSrc="/onboarding/compensation-gift-01.svg" postfix={postfix} sx={fieldSx} /> : null}
+          {hasBonus ? <FieldInput id="bonus" inputMode="numeric" value={bonus} error={Boolean(bonusError)} helperText={bonusError} onChange={(event) => onBonusChange(event.currentTarget.value)} placeholder={bonusPlaceholder} prefixImageSrc="/onboarding/compensation-gift-01.svg" postfix={postfix} sx={fieldSx} /> : null}
         </Box>
       </Box>
     </OnboardingScreen>

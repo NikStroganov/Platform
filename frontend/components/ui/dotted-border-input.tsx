@@ -36,7 +36,7 @@ const DottedInput = styled("input", {
   backgroundPosition: "center",
   backgroundRepeat: "no-repeat",
   backgroundSize: "100% 100%",
-  color: $error ? theme.palette.error.main : primaryColor,
+  color: $error ? "#111111" : primaryColor,
   fontFamily: "Manrope, var(--font-manrope), sans-serif",
   fontSize: 24,
   fontWeight: 600,
