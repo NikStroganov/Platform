@@ -114,4 +114,4 @@ jobs:
             docker pull srkinj/platform-frontend:staging 
             docker pull srkinj/platform-storybook:staging
             docker pull srkinj/platform-backend:staging
-            docker-compose -f ~/deploy/staging/docker-compose.staging.yml up -d
+            docker compose -f ~/deploy/staging/docker-compose.staging.yml up -d

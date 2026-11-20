@@ -46,3 +46,12 @@ logging:
 
 app:
   static-base-url: http://localhost:7070/company-logos/
+
+smart-search:
+  minimum-similarity: 0.30
+  minimum-partial-query-length: 1
+  minimum-fuzzy-query-length: 1
+
+skills:
+  max-selected: 15
+  recommendations-limit: 10

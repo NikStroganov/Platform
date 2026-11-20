@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 public class LogoBuilder {
 
     private final AppProperties properties;
-
     public String build(String logoKey) {
         return properties.staticBaseUrl() + logoKey;
     }

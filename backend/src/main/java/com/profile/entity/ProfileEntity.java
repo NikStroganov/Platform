@@ -10,11 +10,8 @@ import com.catalog.options.enums.SeniorityLevel;
 import com.catalog.options.enums.WorkFormat;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 /*
@@ -53,6 +50,9 @@ public class ProfileEntity {
             length = 50
     )
     private String nickname;
+
+    @Column(name = "onboarding_completed", nullable = false)
+    private boolean onboardingCompleted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
