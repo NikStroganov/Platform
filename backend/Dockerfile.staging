@@ -6,6 +6,10 @@ RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn clean package -DskipTests
 
+# Export the schema from the same build used for the runtime image.
+FROM scratch AS openapi
+COPY --from=builder /docs/openapi.json /openapi.json
+
 # --- Stage 2: Package the runtime image ---
 FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
