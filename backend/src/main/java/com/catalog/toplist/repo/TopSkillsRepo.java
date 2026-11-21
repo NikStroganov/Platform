@@ -27,5 +27,4 @@ public interface TopSkillsRepo extends JpaRepository<TopSkillEntity, TopSkillId>
             @Param("professionId") UUID professionId,
             Pageable pageable
     );
-
 }
