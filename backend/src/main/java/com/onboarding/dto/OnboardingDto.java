@@ -6,6 +6,7 @@ import com.catalog.options.enums.WorkFormat;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
+import java.util.Set;
 import java.util.UUID;
 
 public record OnboardingDto(
@@ -55,5 +56,8 @@ public record OnboardingDto(
         BigDecimal bonus,
 
         @NotNull
-        CurrencyCode currency
+        CurrencyCode currency,
+
+        @NotNull
+        Set<@NotNull UUID> skillIds
 ) {}
