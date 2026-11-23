@@ -901,6 +901,7 @@
             },
             "OnboardingDto": {
                 "required": [
+                    "skillIds",
                     "companyId",
                     "countryId",
                     "currency",
@@ -989,6 +990,14 @@
                             "RUB",
                             "USD"
                         ]
+                    },
+                    "skillIds": {
+                        "uniqueItems": true,
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
                     }
                 }
             },

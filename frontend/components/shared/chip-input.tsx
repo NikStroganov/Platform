@@ -23,6 +23,7 @@ export type ChipInputProps = Omit<BoxProps, "onChange"> & {
   placeholder?: string;
   maxVisibleHeight?: number;
   options?: ChipInputOption[];
+  restrictToOptions?: boolean;
   active?: boolean;
   noOptionsText?: string;
   maxItems?: number;
@@ -134,6 +135,7 @@ export function ChipInput({
   placeholder = defaultPlaceholder,
   maxVisibleHeight = 168,
   options,
+  restrictToOptions = false,
   active = false,
   noOptionsText = defaultNoOptionsText,
   maxItems = Infinity,
@@ -174,7 +176,9 @@ export function ChipInput({
 
   const addDraft = () => {
     const text = draft.trim();
-    const next = options?.find((option) => option.label.toLowerCase() === text.toLowerCase())?.value ?? text;
+    const option = options?.find((option) => option.label.toLowerCase() === text.toLowerCase());
+    if (restrictToOptions && !option) return;
+    const next = option?.value ?? text;
 
     if (!next || value.includes(next) || value.length >= maxItems) {
       setDraft("");

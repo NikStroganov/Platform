@@ -213,6 +213,8 @@ export interface OnboardingDto {
    */
   bonus?: number;
   currency: "RUB" | "USD";
+  /** @uniqueItems true */
+  skillIds: string[];
 }
 
 export interface UserRegisterDto {

@@ -31,5 +31,6 @@ export function buildOnboardingDto(state: ProfileCompletionState): OnboardingDto
     salary: parseNumber(state.salary),
     bonus: state.hasBonus && state.bonus ? parseNumber(state.bonus) : undefined,
     currency: state.currency,
+    skillIds: state.skills,
   };
 }
