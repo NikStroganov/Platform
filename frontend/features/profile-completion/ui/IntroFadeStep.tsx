@@ -7,7 +7,6 @@ import Typography from "@mui/material/Typography";
 
 import { CareItLogo } from "./OnboardingScreen";
 import { IntroArtwork } from "./OnboardingArtwork";
-import { AppButton } from "@/components/ui/app-button";
 import motion from "./onboarding-motion.module.css";
 
 const welcomeTitle = "\u0414\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c \u043d\u0430 CareIt! \u041c\u044b \u0434\u0435\u043b\u0430\u0435\u043c \u0440\u044b\u043d\u043e\u043a \u043f\u0440\u043e\u0437\u0440\u0430\u0447\u043d\u044b\u043c \u0438 \u043f\u043e\u043d\u044f\u0442\u043d\u044b\u043c";
@@ -16,9 +15,8 @@ const anonymousCopy = [
   "\u043f\u043e\u044d\u0442\u043e\u043c\u0443 \u0437\u0430\u0434\u0430\u0434\u0438\u043c \u0432\u043e\u043f\u0440\u043e\u0441\u044b \u043e \u0432\u0430\u0448\u0435\u0439 \u0440\u0430\u0431\u043e\u0442\u0435.",
   "\u041d\u043e \u0445\u0440\u0430\u043d\u0438\u043c \u0434\u0430\u043d\u043d\u044b\u0435 \u0438\u0441\u043a\u043b\u044e\u0447\u0438\u0442\u0435\u043b\u044c\u043d\u043e \u0430\u043d\u043e\u043d\u0438\u043c\u043d\u043e",
 ];
-const nextLabel = "\u0418\u0434\u0435\u043c \u0434\u0430\u043b\u044c\u0448\u0435";
 
-export function IntroFadeStep({ onNext, loading }: { onNext: () => void; loading?: boolean }) {
+export function IntroFadeStep({ onNext }: { onNext: () => void }) {
   const [activeSlide, setActiveSlide] = React.useState<"welcome" | "anonymous" | "leaving">("welcome");
   const completeIntro = React.useEffectEvent(onNext);
   React.useEffect(() => {
@@ -59,7 +57,6 @@ export function IntroFadeStep({ onNext, loading }: { onNext: () => void; loading
         </Box>
       </Box>
       <IntroArtwork spread={showAnonymous} />
-      <AppButton data-motion="primary" appStyle="figma" onClick={onNext} disabled={loading} sx={{ position: "absolute", left: "50%", bottom: { xs: 32, md: 80 }, transform: "translateX(-50%)", width: 201, height: 48, borderRadius: "12px", zIndex: 2 }}>{nextLabel}</AppButton>
     </Box>
   );
 }

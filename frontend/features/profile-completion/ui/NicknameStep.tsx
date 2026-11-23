@@ -24,11 +24,12 @@ type NicknameStepProps = {
   currentStep: number;
   stepCount: number;
   onChange: (value: string) => void;
+  onBlur: () => void;
   onNext: () => void;
   onStepSelect: (index: number) => void;
 };
 
-export function NicknameStep({ value, canContinue, loading, error, currentStep, stepCount, onChange, onNext, onStepSelect }: NicknameStepProps) {
+export function NicknameStep({ value, canContinue, loading, error, currentStep, stepCount, onChange, onBlur, onNext, onStepSelect }: NicknameStepProps) {
   return (
     <OnboardingScreen nodeId="2238:6762" canContinue={canContinue} loading={loading} loadingLabel="Проверяем..." currentStep={currentStep} stepCount={stepCount} onNext={onNext} onStepSelect={onStepSelect}>
       <Box sx={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none" }}><AnonymousArtwork /></Box>
@@ -36,7 +37,7 @@ export function NicknameStep({ value, canContinue, loading, error, currentStep, 
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1, maxWidth: "100%" }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1.5, maxWidth: "100%", "& input": { width: { xs: "min(280px, calc(100vw - 135px))", sm: 280 }, height: 44, minHeight: 44, fontSize: { xs: 18, sm: 24 }, px: { xs: 1, sm: "20px" } } }}>
             <Typography component="h1" sx={{ color: "#111111", fontSize: 24, fontWeight: 600, lineHeight: "32px", whiteSpace: "nowrap" }}>{greetingLabel}</Typography>
-            <DottedBorderInput disabled={loading} aria-label={nicknamePlaceholder} aria-describedby={error ? "nickname-error" : undefined} aria-invalid={Boolean(error)} value={value} placeholder={nicknamePlaceholder} error={Boolean(error)} onChange={(event) => onChange(event.currentTarget.value)} onKeyDown={(event) => { if (event.key === "Enter" && canContinue && !loading) onNext(); }} />
+            <DottedBorderInput disabled={loading} aria-label={nicknamePlaceholder} aria-describedby={error ? "nickname-error" : undefined} aria-invalid={Boolean(error)} value={value} placeholder={nicknamePlaceholder} error={Boolean(error)} onChange={(event) => onChange(event.currentTarget.value)} onBlur={onBlur} onKeyDown={(event) => { if (event.key === "Enter" && canContinue && !loading) onNext(); }} />
           </Box>
           {error ? <InputCaption id="nickname-error" error sx={{ width: { xs: "min(280px, calc(100vw - 135px))", sm: 280 }, textAlign: "center" }}>{error}</InputCaption> : null}
         </Box>

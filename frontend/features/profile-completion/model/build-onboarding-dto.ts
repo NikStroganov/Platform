@@ -25,7 +25,8 @@ export function buildOnboardingDto(state: ProfileCompletionState): OnboardingDto
     workFormat: state.workFormat,
     professionId: state.professionId,
     seniorityLevel: state.seniorityLevel,
-    companyGrade: state.hasCompanyGrade && state.companyGrade ? parseNumber(state.companyGrade) : undefined,
+    // TODO: Send companyGrade after the backend supports strings and the API client is regenerated.
+    // Until then, keep the user's text in flow state and review only.
     workExperienceYears: parseNumber(state.workExperienceYears),
     salary: parseNumber(state.salary),
     bonus: state.hasBonus && state.bonus ? parseNumber(state.bonus) : undefined,

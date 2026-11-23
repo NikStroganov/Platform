@@ -14,7 +14,7 @@ export function experienceError(value: string): string {
   if (!value.trim()) return "";
   if (!/^-?\d+$/.test(value.trim())) return "Указать можно только целое число";
   if (Number(value) < 1) return "Минимум 1 год";
-  if (Number(value) > 80) return "Максимум 80 лет";
+  if (Number(value) > 50) return "Максимум 50 лет";
   return "";
 }
 
@@ -35,12 +35,9 @@ export function amountError(value: string, kind: "salary" | "bonus", currency: P
   const normalized = normalizeAmount(value);
   if (!/^\d+$/.test(normalized)) return "Только целые числа, без знаков";
   const amount = Number(normalized);
-  // The Figma limits are specified for rubles; do not assume an exchange rate for USD.
-  if (currency === "RUB") {
-    if (kind === "salary" && amount < 28_000) return "Минимум 28 000";
-    if (kind === "salary" && amount > 2_000_000) return "Максимум 2 000 000";
-    if (kind === "bonus" && amount > 30_000_000) return "Максимум 30 000 000";
-  }
+  // OnboardingDto uses the same limits for salary and bonus in every currency.
+  if (currency === "RUB" && kind === "salary" && amount < 28_000) return "Минимум 28 000";
+  if (amount > 2_000_000) return "Максимум 2 000 000";
   if (!Number.isSafeInteger(amount)) return "Только целые числа, без знаков";
   return "";
 }

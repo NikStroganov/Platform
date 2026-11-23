@@ -4,6 +4,7 @@ import fs from "node:fs";
 import net from "node:net";
 import path from "node:path";
 import os from "node:os";
+import { mockOnboardingApi } from "./helpers/onboarding-api-fixture.mjs";
 
 function getFreePort() {
   return new Promise((resolve, reject) => {
@@ -123,6 +124,8 @@ await page.addInitScript(() => {
   window.localStorage.setItem("refresh_token", "playwright-refresh-token");
 });
 
+await mockOnboardingApi(page);
+
 try {
   await waitForServer(server);
   const response = await page.goto(onboardingUrl, { waitUntil: "domcontentloaded" });
@@ -139,6 +142,7 @@ try {
 
   expectEqual(initialMetrics.welcome.exists, true, "welcome slide scene exists");
   expectEqual(initialMetrics.anonymous.exists, true, "anonymous slide scene exists");
+  expectEqual(await page.locator("[data-intro-phase] button").count(), 0, "welcome slide has no buttons");
   expectOpacityNear(initialMetrics.welcome.layerOpacity, 1, "welcome slide is visible on first render");
   expectOpacityNear(initialMetrics.anonymous.layerOpacity, 0, "explanation is mounted but hidden until the cards scatter");
   expectEqual(await page.locator('[data-node-id="2031:5313"]').locator("..").getAttribute("aria-hidden"), "true", "covered explanation is hidden from assistive technology");
@@ -152,22 +156,11 @@ try {
   const afterTimerMetrics = await page.evaluate(getIntroMetrics);
   expectOpacityNear(afterTimerMetrics.welcome.layerOpacity, 0, "timer hides welcome slide");
   expectOpacityNear(afterTimerMetrics.anonymous.layerOpacity, 1, "timer reveals anonymity slide");
+  expectEqual(await page.locator("[data-intro-phase] button").count(), 0, "anonymity slide has no buttons");
   expectEqual(await page.locator('[data-testid^="intro-debug-"]').count(), 0, "intro does not expose debug controls");
   // The intro now advances automatically after the cards scatter and the copy leaves.
   await page.getByPlaceholder("Введи свой никнейм").waitFor();
   expectEqual(await page.getByRole("tab", { selected: true }).getAttribute("aria-label"), "Шаг 1", "automatic intro completion opens nickname step");
-
-  // Skipping either phase must cancel all remaining intro timers.
-  for (const phase of ["welcome", "anonymous"]) {
-    await page.goto(onboardingUrl, { waitUntil: "domcontentloaded" });
-    await page.locator(`[data-intro-phase="${phase}"]`).waitFor();
-    await page.getByRole("button", { name: "Идем дальше", exact: true }).click();
-    await page.getByPlaceholder("Введи свой никнейм").fill("MotionCheck");
-    await page.getByRole("button", { name: "Далее", exact: true }).click();
-    await page.getByPlaceholder("Название компании").waitFor();
-    await page.waitForTimeout(5000);
-    expectEqual(await page.getByPlaceholder("Название компании").count(), 1, `skip during ${phase} does not advance the company step later`);
-  }
 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto(onboardingUrl, { waitUntil: "domcontentloaded" });

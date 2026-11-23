@@ -8,6 +8,7 @@
 - На первом этапе реализации создать общий экранный шаблон флоу: логотип, прогресс/stepper, центральная область шага, нижняя основная кнопка, навигация и механизм переключения шагов.
 - Использовать компоненты из существующей capability `design-system-components`, включая `AppStepper`, `AppButton`, `FieldInput`, `GradeSelect`, `SwitchButtons`, `CompanyButtons`, `CityButtons`, `SpecialityButtons`, `ToggleWithLabel`, `ChipInput` и связанные shared-компоненты.
 - Использовать сгенерированный API-клиент из `frontend/lib/api/gen` и существующий wrapper `frontend/lib/api/client.ts`; финальная отправка данных должна идти через `api.saveOnboarding`.
+- Подключить реальные backend API для каталогов, поиска, рекомендаций навыков и проверки nickname; реализовать глобальный redirect в `AuthGuard` по отдельному onboarding status в рамках этого change.
 - Реализовывать конкретные шаги флоу поэтапно по отдельным макетам, сохраняя общий state-механизм и DTO-маппинг для всего процесса.
 - Не добавлять breaking changes.
 

@@ -3,28 +3,23 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-
-import { ChipInput, type ChipInputOption } from "@/components/shared/chip-input";
-import { CityButtons, type CityButtonItem } from "@/components/shared/city-buttons";
-import { CompanyButtons, type CompanyButtonItem } from "@/components/shared/company-buttons";
-import { FieldInput } from "@/components/shared/field-input";
-import { GradeSelect } from "@/components/shared/grade-select";
-import { SearchInput, type SearchInputOption } from "@/components/shared/search-input";
-import { SpecialityButtons, type SpecialityButtonItem } from "@/components/shared/speciality-buttons";
-import { SwitchButtons, type SwitchButtonsOption } from "@/components/shared/switch-buttons";
-import { ToggleWithLabel } from "@/components/shared/toggle-with-label";
+import type { ChipInputOption } from "@/components/shared/chip-input";
+import type { CityButtonItem } from "@/components/shared/city-buttons";
+import type { CompanyButtonItem } from "@/components/shared/company-buttons";
+import type { SearchInputOption } from "@/components/shared/search-input";
+import type { SpecialityButtonItem } from "@/components/shared/speciality-buttons";
+import type { SwitchButtonsOption } from "@/components/shared/switch-buttons";
 import { api } from "@/lib/api/client";
 
 import {
-  checkNicknameAvailabilityMock,
-  getSeniorityLevelsMock,
-  getTopCitiesMock,
-  getTopCompaniesMock,
-  getTopProfessionsMock,
-  getWorkFormatsMock,
-  searchCatalogMock,
+  checkNicknameAvailability,
+  getSeniorityLevels,
+  getTopCities,
+  getTopCompanies,
+  getTopProfessions,
+  getWorkFormats,
+  getTopSkills,
+  searchCatalog,
 } from "../api/profile-completion-api";
 import { buildOnboardingDto } from "../model/build-onboarding-dto";
 import { onboardingFieldErrors } from "../model/onboarding-validation";
@@ -32,7 +27,6 @@ import {
   initialProfileCompletionState,
   profileCompletionSteps,
   type ProfileCompletionState,
-  type ProfileCompletionStepId,
   type SelectedDisplay,
 } from "../model/profile-completion-types";
 import { CompanyStep } from "./CompanyStep";
@@ -41,13 +35,11 @@ import { IntroFadeStep } from "./IntroFadeStep";
 import { LocationStep } from "./LocationStep";
 import { NicknameStep } from "./NicknameStep";
 import { ProfessionStep } from "./ProfessionStep";
-import { ProfileCompletionLayout } from "./ProfileCompletionLayout";
 import { SeniorityStep } from "./SeniorityStep";
 import { SkillsStep } from "./SkillsStep";
 import { ReviewStep } from "./ReviewStep";
 
 const visibleSteps = profileCompletionSteps.filter((step) => step.progressVisible !== false);
-const visibleStepIds = new Set(visibleSteps.map((step) => step.id));
 
 function makeDisplay(label: string, colorHex?: string, logoUrl?: string): SelectedDisplay {
   return { label, colorHex, logoUrl };
@@ -55,6 +47,10 @@ function makeDisplay(label: string, colorHex?: string, logoUrl?: string): Select
 
 function findLabel(options: { value: string; label: string }[], value: string) {
   return options.find((option) => option.value === value)?.label ?? value;
+}
+
+function mergeSkills(previous: ChipInputOption[], next: ChipInputOption[]) {
+  return [...new Map([...previous, ...next].map(option => [option.value, option])).values()];
 }
 
 function getProfessionAccent(name?: string) {
@@ -99,13 +95,21 @@ export function ProfileCompletionFlow() {
   const [currentStep, setCurrentStep] = React.useState(0);
   const [maxStep, setMaxStep] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState("");
+  const [actionError, setError] = React.useState("");
+  const nicknameCheck = React.useRef<{ nickname: string; promise: Promise<boolean> } | null>(null);
   const [professionItems, setProfessionItems] = React.useState<SpecialityButtonItem[]>([]);
   const [companyItems, setCompanyItems] = React.useState<CompanyButtonItem[]>([]);
   const [cityItems, setCityItems] = React.useState<CityButtonItem[]>([]);
   const [workFormatOptions, setWorkFormatOptions] = React.useState<SwitchButtonsOption[]>([]);
   const [seniorityOptions, setSeniorityOptions] = React.useState<SwitchButtonsOption[]>([]);
   const [skillOptions, setSkillOptions] = React.useState<ChipInputOption[]>([]);
+  const [suggestedSkills, setSuggestedSkills] = React.useState<ChipInputOption[]>([]);
+  const [skillSearch, setSkillSearch] = React.useState<ChipInputOption[]>([]);
+  const [skillsQuery, setSkillsQuery] = React.useState("");
+  const [catalogsError, setCatalogsError] = React.useState("");
+  const [skillsError, setSkillsError] = React.useState("");
+  const [skillsAttempt, setSkillsAttempt] = React.useState(0);
+  const searchVersion = React.useRef<Record<string, number>>({});
   const [professionSearch, setProfessionSearch] = React.useState<SearchInputOption[]>([]);
   const [professionQuery, setProfessionQuery] = React.useState("");
   const [companySearch, setCompanySearch] = React.useState<SearchInputOption[]>([]);
@@ -119,60 +123,102 @@ export function ProfileCompletionFlow() {
   const visibleStepIndex = visibleSteps.findIndex((item) => item.id === step.id);
   const canContinue = step.canContinue(state);
   const fieldErrors = onboardingFieldErrors(state);
+  const error = actionError || catalogsError;
 
   React.useEffect(() => {
     let active = true;
 
-    async function loadMockData() {
-      const [professions, companies, cities, formats, seniority, skills, countries] = await Promise.all([
-        getTopProfessionsMock(),
-        getTopCompaniesMock(),
-        getTopCitiesMock(),
-        getWorkFormatsMock(),
-        getSeniorityLevelsMock(),
-        searchCatalogMock({ type: "SKILL", query: "", size: 50 }),
-        searchCatalogMock({ type: "COUNTRY", query: "", size: 20 }),
-      ]);
+    async function loadCatalogs() {
+      try {
+        const [professions, companies, cities, formats, seniority] = await Promise.all([
+          getTopProfessions(),
+          getTopCompanies(),
+          getTopCities(),
+          getWorkFormats(),
+          getSeniorityLevels(),
+        ]);
 
-      if (!active) {
-        return;
-      }
+        if (!active) {
+          return;
+        }
 
-      setProfessionItems(
-        professions.map((item) => ({ value: item.professionId ?? "", label: item.name ?? "Профессия", colorHex: getProfessionAccent(item.name), backgroundHex: getProfessionAccent(item.name) === "#1ca2d3" ? undefined : item.backgroundColor })),
-      );
-      setCompanyItems(
-        companies.map((item) => ({
-          value: item.companyId ?? "",
-          label: item.name ?? "Компания",
-          logoUrl: item.logoKey,
-          ...(companyPalette[item.name ?? ""] ?? { colorHex: "#3d82ff", backgroundHex: item.backgroundColor }),
-        })),
-      );
-      setCityItems(cities.map((item) => ({ value: item.cityId ?? "", label: item.name ?? "Город", colorHex: getCityAccent(item.name), backgroundHex: item.backgroundColor })));
-      setWorkFormatOptions(formats.map((item) => ({ value: item.code ?? "", label: item.label ?? item.code ?? "" })));
-      setSeniorityOptions(seniority.map((item) => ({ value: item.code ?? "", label: item.label ?? item.code ?? "" })));
-      const defaultSeniority = seniority[1] ?? seniority[0];
-      if (defaultSeniority?.code) {
-        setState((current) => current.seniorityLevel ? current : {
-          ...current,
-          seniorityLevel: defaultSeniority.code as ProfileCompletionState["seniorityLevel"],
-          display: { ...current.display, seniorityLevel: makeDisplay(defaultSeniority.label ?? defaultSeniority.code ?? "") },
-        });
+        setProfessionItems(
+          professions.map((item) => ({ value: item.professionId ?? "", label: item.name ?? "Профессия", colorHex: getProfessionAccent(item.name), backgroundHex: getProfessionAccent(item.name) === "#1ca2d3" ? undefined : item.backgroundColor })),
+        );
+        setCompanyItems(
+          companies.map((item) => ({
+            value: item.companyId ?? "",
+            label: item.name ?? "Компания",
+            logoUrl: item.logoKey,
+            ...(companyPalette[item.name ?? ""] ?? { colorHex: "#3d82ff", backgroundHex: item.backgroundColor }),
+          })),
+        );
+        setCityItems(cities.map((item) => ({ value: item.cityId ?? "", label: item.name ?? "Город", colorHex: getCityAccent(item.name), backgroundHex: item.backgroundColor })));
+        setWorkFormatOptions(formats.map((item) => ({ value: item.code ?? "", label: item.label ?? item.code ?? "" })));
+        setSeniorityOptions(seniority.map((item) => ({ value: item.code ?? "", label: item.label ?? item.code ?? "" })));
+        const defaultSeniority = seniority[1] ?? seniority[0];
+        if (defaultSeniority?.code) {
+          setState((current) => current.seniorityLevel ? current : {
+            ...current,
+            seniorityLevel: defaultSeniority.code as ProfileCompletionState["seniorityLevel"],
+            display: { ...current.display, seniorityLevel: makeDisplay(defaultSeniority.label ?? defaultSeniority.code ?? "") },
+          });
+        }
+      } catch {
+        if (active) setCatalogsError("Не удалось загрузить справочники. Попробуйте ещё раз.");
       }
-      setSkillOptions(skills.map((item) => ({ value: item.id ?? item.name ?? "", label: item.name ?? "Навык" })));
-      setCountrySearch(countries.map((item) => ({ value: item.id ?? item.name ?? "", label: item.name ?? "" })));
     }
 
-    void loadMockData();
+    void loadCatalogs();
 
     return () => {
       active = false;
     };
   }, []);
 
+  React.useEffect(() => {
+    if (!state.professionId) return;
+    let active = true;
+    getTopSkills(state.professionId).then(skills => {
+      if (!active) return;
+      const options = skills.map(item => ({ value: item.skillId!, label: item.name! }));
+      setSuggestedSkills(options);
+      setSkillOptions(current => mergeSkills(current, options));
+      setSkillsError("");
+    }).catch(() => {
+      if (active) setSkillsError("Не удалось загрузить популярные навыки. Попробуйте ещё раз.");
+    });
+    return () => { active = false; };
+  }, [state.professionId, skillsAttempt]);
+
+  React.useEffect(() => {
+    if (!skillsQuery.trim()) return;
+    let active = true;
+    const timer = window.setTimeout(() => {
+      searchCatalog({ type: "SKILL", query: skillsQuery, size: 50 }).then(skills => {
+        if (!active) return;
+        const options = skills.map(item => ({ value: item.id!, label: item.name! }));
+        setSkillSearch(options);
+        setSkillOptions(current => mergeSkills(current, options));
+        setSkillsError("");
+      }).catch(() => {
+        if (active) setSkillsError("Не удалось найти навыки. Попробуйте ещё раз.");
+      });
+    }, 250);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [skillsQuery, skillsAttempt]);
+
   function updateState(patch: Partial<ProfileCompletionState>) {
     setError("");
+    if (patch.nickname !== undefined && patch.nickname.trim() !== state.nickname.trim()) {
+      nicknameCheck.current = null;
+    }
+    if (patch.professionId !== undefined && patch.professionId !== state.professionId) {
+      setSuggestedSkills([]);
+      setSkillSearch([]);
+      setSkillsQuery("");
+      setSkillsError("");
+    }
     setState((current) => ({ ...current, ...patch }));
   }
 
@@ -180,13 +226,51 @@ export function ProfileCompletionFlow() {
     setState((current) => ({ ...current, display: { ...current.display, ...display } }));
   }
 
-  function goToStep(index: number) {
+  async function goToStep(index: number) {
     if (loading) return;
     const clamped = Math.min(Math.max(index, 0), profileCompletionSteps.length - 1);
-    if (clamped <= maxStep) {
-      setError("");
-      setCurrentStep(clamped);
+    if (clamped > maxStep) return;
+
+    setError("");
+    if (clamped > currentStep) {
+      const skippedSteps = profileCompletionSteps.slice(currentStep, clamped);
+      if (skippedSteps.some((item) => !item.canContinue(state))) {
+        setError("Заполните текущий шаг, чтобы продолжить");
+        return;
+      }
+
+      if (skippedSteps.some((item) => item.id === "nickname")) {
+        try {
+          setLoading(true);
+          if (!await validateNickname()) return;
+        } finally {
+          setLoading(false);
+        }
+      }
     }
+    setCurrentStep(clamped);
+  }
+
+  function validateNickname(): Promise<boolean> {
+    const nickname = state.nickname.trim();
+    if (!nickname || fieldErrors.nickname) return Promise.resolve(false);
+    if (nicknameCheck.current?.nickname === nickname) return nicknameCheck.current.promise;
+
+    const check = { nickname, promise: Promise.resolve(false) };
+    check.promise = checkNicknameAvailability(nickname).then((available) => {
+      if (nicknameCheck.current !== check) return false;
+      setError(available ? "" : "Никнейм уже занят");
+      if (!available) nicknameCheck.current = null;
+      return available;
+    }).catch(() => {
+      if (nicknameCheck.current === check) {
+        nicknameCheck.current = null;
+        setError("Не удалось проверить никнейм. Попробуйте ещё раз.");
+      }
+      return false;
+    });
+    nicknameCheck.current = check;
+    return check.promise;
   }
 
   async function handleNext() {
@@ -199,12 +283,14 @@ export function ProfileCompletionFlow() {
     }
 
     if (step.id === "nickname") {
-      setLoading(true);
-      const result = await checkNicknameAvailabilityMock(state.nickname);
-      setLoading(false);
-      if (!result.available) {
-        setError("Никнейм уже занят");
+      try {
+        setLoading(true);
+        if (!await validateNickname()) return;
+      } catch {
+        setError("Не удалось проверить никнейм. Попробуйте ещё раз.");
         return;
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -230,33 +316,36 @@ export function ProfileCompletionFlow() {
     setCurrentStep(nextStep);
   }
 
-  function handleBack() {
-    setError("");
-    setCurrentStep((current) => Math.max(current - 1, 0));
-  }
-
   function handleVisibleStepSelect(visibleIndex: number) {
     const target = profileCompletionSteps.findIndex((item) => item.id === visibleSteps[visibleIndex]?.id);
-    goToStep(target);
+    void goToStep(target);
   }
 
   async function handleSearch(type: "PROFESSION" | "COMPANY" | "COUNTRY" | "CITY", query: string) {
-    const results = await searchCatalogMock({ type, query, size: 8 });
-    const options = results.map((item) => ({ value: item.id ?? item.name ?? "", label: item.name ?? "" }));
+    const version = (searchVersion.current[type] ?? 0) + 1;
+    searchVersion.current[type] = version;
+    try {
+      const results = query.trim() ? await searchCatalog({ type, query, size: 8 }) : [];
+      if (searchVersion.current[type] !== version) return;
+      setError("");
+      const options = results.map((item) => ({ value: item.id ?? item.name ?? "", label: item.name ?? "" }));
 
-    if (type === "PROFESSION") {
-      setProfessionSearch(options);
-    } else if (type === "COMPANY") {
-      setCompanySearch(options);
-    } else if (type === "COUNTRY") {
-      setCountrySearch(options);
-    } else {
-      setCitySearch(options);
+      if (type === "PROFESSION") {
+        setProfessionSearch(options);
+      } else if (type === "COMPANY") {
+        setCompanySearch(options);
+      } else if (type === "COUNTRY") {
+        setCountrySearch(options);
+      } else {
+        setCitySearch(options);
+      }
+    } catch {
+      if (searchVersion.current[type] === version) setError("Не удалось выполнить поиск. Попробуйте ещё раз.");
     }
   }
 
   if (step.id === "intro") {
-    return <IntroFadeStep onNext={handleNext} loading={loading} />;
+    return <IntroFadeStep onNext={handleNext} />;
   }
 
   if (step.id === "nickname") {
@@ -269,6 +358,7 @@ export function ProfileCompletionFlow() {
         currentStep={Math.max(visibleStepIndex, 0)}
         stepCount={visibleSteps.length}
         onChange={(nickname) => updateState({ nickname })}
+        onBlur={() => { void validateNickname(); }}
         onNext={handleNext}
         onStepSelect={handleVisibleStepSelect}
       />
@@ -277,7 +367,10 @@ export function ProfileCompletionFlow() {
 
   if (step.id === "company") {
     const filteredCompanyItems = companyQuery.trim()
-      ? companyItems.filter((item) => item.label.toLowerCase().includes(companyQuery.trim().toLowerCase()))
+      ? [...new Map([
+          ...companyItems.filter((item) => item.label.toLowerCase().includes(companyQuery.trim().toLowerCase())),
+          ...companySearch.map(option => companyItems.find(item => item.value === option.value) ?? { value: option.value, label: option.label }),
+        ].map(item => [item.value, item])).values()]
       : companyItems;
 
     return (
@@ -298,7 +391,7 @@ export function ProfileCompletionFlow() {
           void handleSearch("COMPANY", query);
         }}
         onCompanySelect={(value) => {
-          const item = companyItems.find((option) => option.value === value);
+          const item = filteredCompanyItems.find((option) => option.value === value);
           updateState({ companyId: value });
           updateDisplay({ company: makeDisplay(item?.label ?? value, item?.colorHex, item?.logoUrl) });
           setCompanyQuery(item?.label ?? "");
@@ -484,12 +577,15 @@ export function ProfileCompletionFlow() {
     return (
       <SkillsStep
         value={state.skills}
-        options={skillOptions}
+        options={mergeSkills(skillOptions.filter(option => state.skills.includes(option.value)), skillsQuery.trim() ? skillSearch : suggestedSkills)}
+        suggestionOptions={suggestedSkills}
+        onInputChange={(query) => { setSkillsQuery(query); setSkillSearch([]); setSkillsError(""); }}
+        onRetry={() => setSkillsAttempt(current => current + 1)}
         currentStep={Math.max(visibleStepIndex, 0)}
         stepCount={visibleSteps.length}
         loading={loading}
-        error={error}
-        onChange={(skills) => updateState({ skills })}
+        error={skillsError || error}
+        onChange={(skills) => { updateState({ skills }); setSkillsQuery(""); setSkillSearch([]); }}
         onNext={handleNext}
         onStepSelect={handleVisibleStepSelect}
       />
@@ -499,227 +595,4 @@ export function ProfileCompletionFlow() {
   if (step.id === "review") {
     return <ReviewStep state={state} skillOptions={skillOptions} currentStep={Math.max(visibleStepIndex, 0)} stepCount={visibleSteps.length} canContinue={canContinue} loading={loading} error={error} onNext={handleNext} onStepSelect={handleVisibleStepSelect} />;
   }
-
-  const content = renderStepContent({
-    stepId: step.id,
-    state,
-    updateState,
-    updateDisplay,
-    professionItems,
-    companyItems,
-    cityItems,
-    workFormatOptions,
-    seniorityOptions,
-    skillOptions,
-    professionSearch,
-    companySearch,
-    citySearch,
-    handleSearch,
-  });
-
-  return (
-    <ProfileCompletionLayout
-      currentStep={Math.max(visibleStepIndex, 0)}
-      stepCount={visibleSteps.length}
-      title={step.title}
-      description={step.description}
-      primaryLabel={step.primaryLabel ?? "Продолжить"}
-      canContinue={canContinue}
-      loading={loading}
-      error={error}
-      showProgress={visibleStepIds.has(step.id)}
-      onBack={handleBack}
-      onNext={handleNext}
-      onStepSelect={handleVisibleStepSelect}
-    >
-      {content}
-    </ProfileCompletionLayout>
-  );
 }
-
-type RenderContext = {
-  stepId: ProfileCompletionStepId;
-  state: ProfileCompletionState;
-  updateState: (patch: Partial<ProfileCompletionState>) => void;
-  updateDisplay: (display: Partial<ProfileCompletionState["display"]>) => void;
-  professionItems: SpecialityButtonItem[];
-  companyItems: CompanyButtonItem[];
-  cityItems: CityButtonItem[];
-  workFormatOptions: SwitchButtonsOption[];
-  seniorityOptions: SwitchButtonsOption[];
-  skillOptions: ChipInputOption[];
-  professionSearch: SearchInputOption[];
-  companySearch: SearchInputOption[];
-  citySearch: SearchInputOption[];
-  handleSearch: (type: "PROFESSION" | "COMPANY" | "COUNTRY" | "CITY", query: string) => Promise<void>;
-};
-
-function renderStepContent(ctx: RenderContext) {
-  const { stepId, state, updateState, updateDisplay } = ctx;
-
-  if (stepId === "intro") {
-    return (
-      <Box sx={{ width: 64, height: 64, borderRadius: "50%", bgcolor: "#3d82ff", display: "grid", placeItems: "center", color: "#ffffff", fontSize: 36, fontWeight: 700 }}>
-        ✓
-      </Box>
-    );
-  }
-
-  if (stepId === "nickname") {
-    return (
-      <Box sx={{ width: "100%", maxWidth: 400 }}>
-        <FieldInput value={state.nickname} onChange={(event) => updateState({ nickname: event.target.value })} placeholder="Введи свой никнейм" />
-      </Box>
-    );
-  }
-
-  if (stepId === "profession") {
-    return (
-      <Box sx={{ width: "100%", display: "grid", gap: 3 }}>
-        <SearchInput
-          value={state.display.profession?.label ?? ""}
-          options={ctx.professionSearch}
-          placeholder="Найти профессию"
-          clearable
-          onChange={(event) => void ctx.handleSearch("PROFESSION", event.target.value)}
-          onOptionSelect={(option) => {
-            updateState({ professionId: option.value });
-            updateDisplay({ profession: makeDisplay(option.label, "#3d82ff") });
-          }}
-        />
-        <SpecialityButtons
-          items={ctx.professionItems}
-          value={state.professionId}
-          onChange={(value) => {
-            updateState({ professionId: value });
-            updateDisplay({ profession: makeDisplay(findLabel(ctx.professionItems, value), "#3d82ff") });
-          }}
-        />
-      </Box>
-    );
-  }
-
-  if (stepId === "company") {
-    return (
-      <Box sx={{ width: "100%", display: "grid", gap: 3 }}>
-        <SearchInput
-          value={state.display.company?.label ?? ""}
-          options={ctx.companySearch}
-          placeholder="Найти компанию"
-          clearable
-          onChange={(event) => void ctx.handleSearch("COMPANY", event.target.value)}
-          onOptionSelect={(option) => {
-            updateState({ companyId: option.value });
-            updateDisplay({ company: makeDisplay(option.label, "#3d82ff") });
-          }}
-        />
-        <CompanyButtons
-          items={ctx.companyItems}
-          value={state.companyId}
-          onChange={(value) => {
-            updateState({ companyId: value });
-            updateDisplay({ company: makeDisplay(findLabel(ctx.companyItems, value), "#3d82ff") });
-          }}
-        />
-      </Box>
-    );
-  }
-
-  if (stepId === "location") {
-    return (
-      <Box sx={{ width: "100%", display: "grid", gap: 3 }}>
-        <SearchInput
-          value={state.display.city?.label ?? ""}
-          options={ctx.citySearch}
-          placeholder="Найти город"
-          clearable
-          onChange={(event) => void ctx.handleSearch("CITY", event.target.value)}
-          onOptionSelect={(option) => {
-            updateState({ cityId: option.value });
-            updateDisplay({ city: makeDisplay(option.label, "#3d82ff") });
-          }}
-        />
-        <CityButtons
-          items={ctx.cityItems}
-          value={state.cityId}
-          onChange={(value) => {
-            updateState({ cityId: value });
-            updateDisplay({ city: makeDisplay(findLabel(ctx.cityItems, value), "#3d82ff") });
-          }}
-        />
-        <SwitchButtons
-          options={ctx.workFormatOptions}
-          value={state.workFormat}
-          onChange={(value) => {
-            updateState({ workFormat: value as ProfileCompletionState["workFormat"] });
-            updateDisplay({ workFormat: makeDisplay(findLabel(ctx.workFormatOptions, value)) });
-          }}
-        />
-      </Box>
-    );
-  }
-
-  if (stepId === "seniority") {
-    return (
-      <Box sx={{ width: "100%", display: "grid", gap: 4 }}>
-        <GradeSelect
-          options={ctx.seniorityOptions.map((option) => option.label)}
-          value={state.display.seniorityLevel?.label ?? ctx.seniorityOptions[0]?.label ?? ""}
-          onChange={(label) => {
-            const option = ctx.seniorityOptions.find((item) => item.label === label);
-            updateState({ seniorityLevel: (option?.value ?? "") as ProfileCompletionState["seniorityLevel"] });
-            updateDisplay({ seniorityLevel: makeDisplay(label) });
-          }}
-        />
-        <ToggleWithLabel label="Дополнительно указать грейд по правилам компании" checked={state.hasCompanyGrade} onChange={(checked) => updateState({ hasCompanyGrade: checked })} />
-        {state.hasCompanyGrade ? (
-          <FieldInput value={state.companyGrade} onChange={(event) => updateState({ companyGrade: event.target.value })} placeholder="Название или обозначение грейда" />
-        ) : null}
-        <FieldInput type="number" value={state.workExperienceYears} onChange={(event) => updateState({ workExperienceYears: event.target.value })} placeholder="Например, 5" postfix="лет" />
-      </Box>
-    );
-  }
-
-  if (stepId === "compensation") {
-    return (
-      <Box sx={{ width: "100%", display: "grid", gap: 3 }}>
-        <SwitchButtons options={[{ value: "RUB", label: "Рубли" }, { value: "USD", label: "Доллары" }]} value={state.currency} onChange={(value) => updateState({ currency: value as ProfileCompletionState["currency"] })} />
-        <FieldInput type="number" value={state.salary} onChange={(event) => updateState({ salary: event.target.value })} placeholder="Зарплата" postfix={state.currency === "RUB" ? "₽" : "$"} />
-        <ToggleWithLabel label="Указать премию" checked={state.hasBonus} onChange={(checked) => updateState({ hasBonus: checked })} />
-        {state.hasBonus ? (
-          <FieldInput type="number" value={state.bonus} onChange={(event) => updateState({ bonus: event.target.value })} placeholder="Сумма бонусов за год" postfix={state.currency === "RUB" ? "₽" : "$"} />
-        ) : null}
-      </Box>
-    );
-  }
-
-  if (stepId === "skills") {
-    return (
-      <Box sx={{ width: "100%", display: "grid", gap: 3 }}>
-        <ChipInput active value={state.skills} options={ctx.skillOptions} onChange={(skills) => updateState({ skills })} />
-      </Box>
-    );
-  }
-
-  return (
-    <Box sx={{ width: "100%", maxWidth: 520, display: "grid", gap: 2 }}>
-      {[
-        ["Никнейм", state.nickname],
-        ["Профессия", state.display.profession?.label],
-        ["Компания", state.display.company?.label],
-        ["Город", state.display.city?.label],
-        ["Формат", state.display.workFormat?.label],
-        ["Грейд", state.display.seniorityLevel?.label],
-        ["Опыт", state.workExperienceYears ? `${state.workExperienceYears} лет` : ""],
-        ["Зарплата", state.salary ? `${state.salary} ${state.currency}` : ""],
-      ].map(([label, value]) => (
-        <Box key={label} sx={{ display: "flex", justifyContent: "space-between", gap: 3, borderBottom: "1px solid #e6e6e6", py: 1.5 }}>
-          <Typography sx={{ color: "#5f6368", fontSize: 14, fontWeight: 600 }}>{label}</Typography>
-          <Typography sx={{ fontSize: 16, fontWeight: 700, textAlign: "right" }}>{value || "Не указано"}</Typography>
-        </Box>
-      ))}
-    </Box>
-  );
-}
-
-

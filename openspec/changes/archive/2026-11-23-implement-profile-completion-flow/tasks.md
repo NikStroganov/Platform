@@ -23,10 +23,10 @@
 
 ## 4. API Adapters
 
-- [x] 4.1 Add temporary mock adapter functions for top professions, top companies, and top cities returning generated DTO-like data, with TODO markers for real API replacement.
-- [x] 4.2 Add temporary mock adapter functions for work formats and seniority levels returning `CatalogOptionDto`-like data, with TODO markers for real API replacement.
-- [x] 4.3 Add a temporary mock search adapter for company, skill, profession, country, and city lookups returning `SearchResult`-like data, with TODO markers for real API replacement.
-- [x] 4.4 Add a mock nickname availability API-call with a result shape isolated from UI components.
+- [x] 4.1 Connect adapter functions to generated top professions, top companies, top cities, and profession-specific top skills API methods.
+- [x] 4.2 Connect adapter functions to generated work formats and seniority levels API methods.
+- [x] 4.3 Connect the search adapter to generated search API for company, skill, profession, country, and city lookups.
+- [x] 4.4 Connect nickname availability to the real generated API method with a result shape isolated from UI components.
 - [x] 4.5 Normalize all API responses into UI option shapes before passing data to design-system components.
 
 ## 5. Step Implementation
@@ -47,15 +47,15 @@
 - [x] 6.1 Connect the final CTA to `api.saveOnboarding` with the built `OnboardingDto`.
 - [x] 6.2 Show submit loading and failure states without clearing current-session state.
 - [x] 6.3 Handle successful completion with the current minimal post-submit navigation.
-- [x] 6.4 Keep global onboarding redirect out of scope until a separate onboarding status exists.
+- [x] 6.4 Implement global onboarding redirect in AuthGuard using the separate onboarding status API, including retry on status failure.
 
 ## 7. Verification
 
-- [ ] 7.1 Verify the shared layout and step navigation against Figma node `2031:5312`.
-- [ ] 7.2 Verify each implemented step against its relevant Figma state, including error and optional-field states.
+- [x] 7.1 Verify the shared layout and step navigation against Figma node `2031:5312`.
+- [x] 7.2 Verify each implemented step against its relevant Figma state, including error and optional-field states.
 - [x] 7.3 Run frontend lint/type checks for changed files.
-- [ ] 7.4 Add focused tests or story coverage for state mapping, nickname mock behavior, and DTO construction where practical.
-- [ ] 7.5 Confirm `openspec status --change implement-profile-completion-flow` reports all artifacts complete before implementation begins.
+- [x] 7.4 Add focused tests or story coverage for state mapping, nickname API behavior, and DTO construction where practical.
+- [x] 7.5 Confirm `openspec status --change implement-profile-completion-flow` reports all artifacts complete.
 
 
 

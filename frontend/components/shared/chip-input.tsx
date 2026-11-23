@@ -30,6 +30,7 @@ export type ChipInputProps = Omit<BoxProps, "onChange"> & {
   deleteIconSrc?: string;
   clearIconSrc?: string;
   helperText?: React.ReactNode;
+  onInputChange?: (value: string) => void;
 };
 
 const defaultPlaceholder = "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u043d\u0430\u0432\u044b\u043a";
@@ -140,6 +141,7 @@ export function ChipInput({
   deleteIconSrc,
   clearIconSrc,
   helperText,
+  onInputChange,
   sx,
   ...props
 }: ChipInputProps) {
@@ -256,7 +258,7 @@ export function ChipInput({
             </Box>
             {!hideInputAtLimit || value.length < maxItems ? <InputBase
               value={draft}
-              onChange={(event) => setDraft(event.target.value)}
+              onChange={(event) => { setDraft(event.target.value); onInputChange?.(event.target.value); }}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();
@@ -378,7 +380,7 @@ export function ChipInput({
       </Box>
       <AppTextField
         value={draft}
-        onChange={(event) => setDraft(event.target.value)}
+        onChange={(event) => { setDraft(event.target.value); onInputChange?.(event.target.value); }}
         onKeyDown={(event) => {
           if (event.key === "Enter") {
             event.preventDefault();

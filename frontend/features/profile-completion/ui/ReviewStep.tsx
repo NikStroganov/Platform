@@ -9,6 +9,7 @@ import { OnboardingScreen } from "./OnboardingScreen";
 import type { ProfileCompletionState } from "../model/profile-completion-types";
 import type { ChipInputOption } from "@/components/shared/chip-input";
 import { useCardTilt } from "./use-card-tilt";
+import { normalizeAmount } from "../model/onboarding-validation";
 
 type ReviewStepProps = {
   state: ProfileCompletionState;
@@ -42,8 +43,8 @@ export function ReviewStep({ state, skillOptions, currentStep, stepCount, canCon
   const cardRef = useCardTilt();
   const skills = showAllSkills ? state.skills : state.skills.slice(0, 5);
   const formatter = new Intl.NumberFormat("ru-RU", { style: "currency", currency: state.currency, currencyDisplay: "narrowSymbol", minimumFractionDigits: 0, maximumFractionDigits: 2 });
-  const money = (value: string) => formatter.format(Number(value.replace(",", ".")));
-  const location = state.countryId === "20000000-0000-4000-8000-000000000001" ? state.display.city?.label : state.display.country?.label;
+  const money = (value: string) => formatter.format(Number(normalizeAmount(value).replace(",", ".")));
+  const location = state.display.country?.label === "Россия" ? state.display.city?.label : state.display.country?.label;
   const professionColor = state.display.profession?.colorHex ?? "#1ca2d3";
 
   return (
