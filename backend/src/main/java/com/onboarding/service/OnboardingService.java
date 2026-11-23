@@ -2,24 +2,25 @@ package com.onboarding.service;
 
 import com.auth.user.entity.UserEntity;
 import com.auth.user.repo.UserRepo;
-import com.catalog.entity.CityEntity;
-import com.catalog.entity.CompanyEntity;
-import com.catalog.entity.CountryEntity;
-import com.catalog.entity.ProfessionEntity;
+import com.catalog.entity.*;
 import com.onboarding.dto.NicknameAvailabilityDto;
 import com.onboarding.dto.OnboardingStatusResponse;
 import com.onboarding.dto.OnboardingDto;
 import com.profile.dao.ProfileRepo;
+import com.profile.dao.ProfileSkillRepo;
 import com.profile.entity.ProfileEntity;
-import com.smartsearch.repo.CitiesRepo;
-import com.smartsearch.repo.CompaniesRepo;
-import com.smartsearch.repo.CountriesRepo;
-import com.smartsearch.repo.ProfessionsRepo;
+import com.profile.entity.ProfileSkillEntity;
+import com.smartsearch.repo.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +32,11 @@ public class OnboardingService {
     private final ProfessionsRepo professionsRepo;
     private final CitiesRepo citiesRepo;
     private final ProfileRepo profileRepo;
+    private final ProfileSkillRepo profileSkillRepo;
+    private final SkillsRepo skillsRepo;
+    private final com.catalog.config.SkillProperties skillProperties;
 
+    @Transactional
     public void saveOnboardingData(String email, OnboardingDto onboardingDto) {
 
         UserEntity user = userRepo.findByEmail(email)
@@ -65,18 +70,18 @@ public class OnboardingService {
                             new EntityNotFoundException("City not found"));
         }
 
-        if(!cityEntity.getCountry().getId().equals(countryEntity.getId())) {
+        if(cityEntity != null && !cityEntity.getCountry().getId().equals(countryEntity.getId())) {
             throw new IllegalArgumentException(
                     "City does not belong selected country"
             );
         }
 
-        ProfileEntity profile = profileRepo
-                .findById(user.getId())
-                .orElseGet(ProfileEntity::new);
+        List<SkillEntity> skills = validateAndLoadSkills(onboardingDto.skillIds());
+
+        ProfileEntity profile = new ProfileEntity();
 
         profile.setUser(user);
-        profile.setOnboardingCompleted(true);
+        profile.setNickname(onboardingDto.nickname().trim());
         profile.setCompany(companyEntity);
         profile.setCountry(countryEntity);
         profile.setCity(cityEntity);
@@ -90,7 +95,10 @@ public class OnboardingService {
         profile.setBonus(onboardingDto.bonus());
         profile.setCurrency(onboardingDto.currency());
 
-        profileRepo.save(profile);
+        ProfileEntity savedProfile = profileRepo.saveAndFlush(profile);
+        saveProfileSkills(savedProfile, skills);
+
+        savedProfile.setOnboardingCompleted(true);
     }
 
     public NicknameAvailabilityDto checkNicknameAvailability(String nickname) {
@@ -115,5 +123,48 @@ public class OnboardingService {
                 .orElse(false);
 
         return new OnboardingStatusResponse(completed);
+    }
+
+    private List<SkillEntity> validateAndLoadSkills(Set<UUID> skillIds) {
+
+        if (skillIds == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Skills are required"
+            );
+        }
+
+        if (skillIds.size() > skillProperties.maxSelected()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Maximum " + skillProperties.maxSelected() + " skills allowed"
+            );
+        }
+
+        List<SkillEntity> skills = skillsRepo.findAllById(skillIds);
+
+        if (skills.size() != skillIds.size()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "One or more skills not found"
+            );
+        }
+        return skills;
+    }
+
+    private void saveProfileSkills(ProfileEntity profile, List<SkillEntity> skills) {
+
+        List<ProfileSkillEntity> profileSkills = skills.stream()
+                .map(skill -> {
+                    ProfileSkillEntity profileSkill = new ProfileSkillEntity();
+
+                    profileSkill.setProfile(profile);
+                    profileSkill.setSkill(skill);
+
+                    return profileSkill;
+                })
+                .toList();
+
+        profileSkillRepo.saveAll(profileSkills);
     }
 }
