@@ -5,6 +5,7 @@ import ButtonBase from "@mui/material/ButtonBase";
 import Typography from "@mui/material/Typography";
 
 import { alphaHex, resolveHexColor } from "@/components/shared/color-utils";
+import { CompanyLogo } from "@/components/shared/company-logo";
 
 export type CompanyButtonItem = {
   value: string;
@@ -12,6 +13,7 @@ export type CompanyButtonItem = {
   logoUrl?: string;
   colorHex?: string;
   backgroundHex?: string;
+  borderHex?: string;
 };
 
 export type CompanyButtonsProps = Omit<BoxProps, "onChange"> & {
@@ -34,6 +36,7 @@ export function CompanyButtons({ items, value, onChange, sx, ...props }: Company
         return (
           <ButtonBase
             key={item.value}
+            data-motion="company"
             disableRipple
             aria-pressed={selected}
             onClick={() => onChange?.(item.value)}
@@ -48,7 +51,7 @@ export function CompanyButtons({ items, value, onChange, sx, ...props }: Company
               p: 2,
               borderRadius: "24px",
               border: "1px solid",
-              borderColor: alphaHex(item.colorHex, "#1ca2d3", selected ? 0.6 : 0.2),
+              borderColor: selected ? alphaHex(item.colorHex, "#1ca2d3", 0.6) : item.borderHex ?? alphaHex(item.colorHex, "#1ca2d3", 0.2),
               bgcolor: background,
               color: accent,
               transition: "transform 160ms ease, border-color 160ms ease",
@@ -69,7 +72,7 @@ export function CompanyButtons({ items, value, onChange, sx, ...props }: Company
               }}
             >
               {item.logoUrl ? (
-                <Box component="img" src={item.logoUrl} alt="" sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <CompanyLogo src={item.logoUrl} />
               ) : (
                 item.label.slice(0, 1)
               )}

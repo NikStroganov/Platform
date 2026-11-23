@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import Box from "@mui/material/Box";
 
 import { DottedBorderInput } from "@/components/ui/dotted-border-input";
+import { InputCaption } from "@/components/ui/input-caption";
 
 const meta = {
   title: "UI/DottedBorderInput",
@@ -77,6 +78,24 @@ export const Error: Story = {
     error: true,
   },
   render: (args) => <ControlledDottedBorderInput {...args} />,
+};
+
+export const Invalid: Story = {
+  args: { error: true, "aria-invalid": true },
+  render: (args) => (
+    <Box sx={{ display: "grid", gap: 4 }}>
+      {[
+        ["Skannek", "Никнейм уже занят"],
+        ["ОченьДлинныйНикнейм12345", "Максимум 20 символов"],
+        ["1", "Минимум 2 символа"],
+      ].map(([value, message], index) => (
+        <Box key={message} sx={{ display: "grid", gap: 1, width: 280 }}>
+          <ControlledDottedBorderInput {...args} value={value} aria-describedby={`nickname-invalid-${index}`} />
+          <InputCaption error id={`nickname-invalid-${index}`} sx={{ textAlign: "center" }}>{message}</InputCaption>
+        </Box>
+      ))}
+    </Box>
+  ),
 };
 
 export const Disabled: Story = {

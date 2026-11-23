@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import Chip from "@mui/material/Chip";
+import type { SxProps, Theme } from "@mui/material/styles";
 
 import { resolveHexColor } from "@/components/shared/color-utils";
 
@@ -10,9 +11,11 @@ export type AppChipProps = {
   colorHex?: string;
   backgroundHex?: string;
   disabled?: boolean;
+  onClick?: () => void;
+  sx?: SxProps<Theme>;
 };
 
-export function AppChip({ label, onDelete, colorHex, backgroundHex, disabled }: AppChipProps) {
+export function AppChip({ label, onDelete, colorHex, backgroundHex, disabled, onClick, sx }: AppChipProps) {
   const textColor = resolveHexColor(colorHex, "#111111");
 
   return (
@@ -20,7 +23,8 @@ export function AppChip({ label, onDelete, colorHex, backgroundHex, disabled }: 
       label={label}
       onDelete={onDelete}
       disabled={disabled}
-      sx={{
+      onClick={onClick}
+      sx={[{
         height: 36,
         borderRadius: "32px",
         bgcolor: backgroundHex ? resolveHexColor(backgroundHex, "#f2f2f2") : "#f2f2f2",
@@ -32,7 +36,7 @@ export function AppChip({ label, onDelete, colorHex, backgroundHex, disabled }: 
           fontWeight: 500,
           lineHeight: "24px",
         },
-      }}
+      }, ...(Array.isArray(sx) ? sx : [sx])]}
     />
   );
 }

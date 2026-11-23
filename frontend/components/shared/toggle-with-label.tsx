@@ -2,16 +2,19 @@
 
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch, { type SwitchProps } from "@mui/material/Switch";
+import type { SxProps, Theme } from "@mui/material/styles";
 
 export type ToggleWithLabelProps = Omit<SwitchProps, "onChange"> & {
   label: string;
+  labelSx?: SxProps<Theme>;
   onChange?: (checked: boolean) => void;
 };
 
-export function ToggleWithLabel({ label, checked, onChange, sx, ...props }: ToggleWithLabelProps) {
+export function ToggleWithLabel({ label, labelSx, checked, onChange, sx, ...props }: ToggleWithLabelProps) {
   return (
     <FormControlLabel
       label={label}
+      slotProps={{ typography: { sx: [{ fontSize: 16, fontWeight: 500, color: "#111111" }, ...(Array.isArray(labelSx) ? labelSx : [labelSx])] } }}
       control={
         <Switch
           checked={checked}
@@ -65,12 +68,7 @@ export function ToggleWithLabel({ label, checked, onChange, sx, ...props }: Togg
       }
       sx={{
         m: 0,
-        gap: 1.5,
-        "& .MuiFormControlLabel-label": {
-          fontSize: 16,
-          fontWeight: 500,
-          color: "#111111",
-        },
+        gap: 2,
       }}
     />
   );

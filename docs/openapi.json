@@ -6,7 +6,7 @@
     },
     "servers": [
         {
-            "url": "http://backend.careit.tech",
+            "url": "https://backend.careit.tech",
             "description": "Generated server url"
         }
     ],
@@ -461,6 +461,89 @@
                 }
             }
         },
+        "/api/v1/onboarding/status": {
+            "get": {
+                "tags": [
+                    "onboarding-controller"
+                ],
+                "operationId": "getOnboardingStatus",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseOnboardingStatusResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/onboarding/nickname/availability": {
+            "get": {
+                "tags": [
+                    "onboarding-controller"
+                ],
+                "operationId": "checkNicknameAvailability",
+                "parameters": [
+                    {
+                        "name": "nickname",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "maxLength": 50,
+                            "minLength": 2,
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNicknameAvailabilityDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/catalog/skills/top": {
+            "get": {
+                "tags": [
+                    "top-skill-controller"
+                ],
+                "operationId": "getTopSkills",
+                "parameters": [
+                    {
+                        "name": "professionId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListTopSkillDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/catalog/professions/top": {
             "get": {
                 "tags": [
@@ -818,6 +901,7 @@
             },
             "OnboardingDto": {
                 "required": [
+                    "skillIds",
                     "companyId",
                     "countryId",
                     "currency",
@@ -906,6 +990,14 @@
                             "RUB",
                             "USD"
                         ]
+                    },
+                    "skillIds": {
+                        "uniqueItems": true,
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
                     }
                 }
             },
@@ -1026,15 +1118,17 @@
                     "page": {
                         "minimum": 0,
                         "type": "integer",
-                        "description": "Номер страницы из общего списка",
-                        "format": "int32"
+                        "description": "Номер страницы, начиная с 0",
+                        "format": "int32",
+                        "default": 0
                     },
                     "size": {
                         "maximum": 50,
-                        "minimum": 0,
+                        "minimum": 1,
                         "type": "integer",
-                        "description": "Количество выводимых элементов",
-                        "format": "int32"
+                        "description": "Количество элементов на странице",
+                        "format": "int32",
+                        "default": 50
                     }
                 }
             },
@@ -1124,6 +1218,131 @@
                         "type": "string"
                     }
                 }
+            },
+            "ApiResponseOnboardingStatusResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "description": "Успешность операции"
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "Сообщение с инофрмацией о результате операции"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/OnboardingStatusResponse"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "description": "Время запроса",
+                        "format": "date-time"
+                    },
+                    "errors": {
+                        "type": "array",
+                        "description": "Статус код ошибки",
+                        "items": {
+                            "$ref": "#/components/schemas/ApiError"
+                        }
+                    }
+                },
+                "description": "Ответы для операций с профилем пользователя"
+            },
+            "OnboardingStatusResponse": {
+                "type": "object",
+                "properties": {
+                    "completed": {
+                        "type": "boolean"
+                    }
+                },
+                "description": "Блок с DTO"
+            },
+            "ApiResponseNicknameAvailabilityDto": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "description": "Успешность операции"
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "Сообщение с инофрмацией о результате операции"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/NicknameAvailabilityDto"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "description": "Время запроса",
+                        "format": "date-time"
+                    },
+                    "errors": {
+                        "type": "array",
+                        "description": "Статус код ошибки",
+                        "items": {
+                            "$ref": "#/components/schemas/ApiError"
+                        }
+                    }
+                },
+                "description": "Ответы для операций с профилем пользователя"
+            },
+            "NicknameAvailabilityDto": {
+                "type": "object",
+                "properties": {
+                    "nickname": {
+                        "type": "string"
+                    },
+                    "available": {
+                        "type": "boolean"
+                    }
+                },
+                "description": "Блок с DTO"
+            },
+            "ApiResponseListTopSkillDto": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "description": "Успешность операции"
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "Сообщение с инофрмацией о результате операции"
+                    },
+                    "data": {
+                        "type": "array",
+                        "description": "Блок с DTO",
+                        "items": {
+                            "$ref": "#/components/schemas/TopSkillDto"
+                        }
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "description": "Время запроса",
+                        "format": "date-time"
+                    },
+                    "errors": {
+                        "type": "array",
+                        "description": "Статус код ошибки",
+                        "items": {
+                            "$ref": "#/components/schemas/ApiError"
+                        }
+                    }
+                },
+                "description": "Ответы для операций с профилем пользователя"
+            },
+            "TopSkillDto": {
+                "type": "object",
+                "properties": {
+                    "skillId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "description": "Блок с DTO"
             },
             "ApiResponseListTopProfessionDto": {
                 "type": "object",

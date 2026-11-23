@@ -213,6 +213,8 @@ export interface OnboardingDto {
    */
   bonus?: number;
   currency: "RUB" | "USD";
+  /** @uniqueItems true */
+  skillIds: string[];
 }
 
 export interface UserRegisterDto {
@@ -267,16 +269,18 @@ export interface SearchRequest {
    */
   query: string;
   /**
-   * Номер страницы из общего списка
+   * Номер страницы, начиная с 0
    * @format int32
    * @min 0
+   * @default 0
    */
   page?: number;
   /**
-   * Количество выводимых элементов
+   * Количество элементов на странице
    * @format int32
-   * @min 0
+   * @min 1
    * @max 50
+   * @default 50
    */
   size?: number;
 }
@@ -314,6 +318,75 @@ export interface SearchResult {
   /** @format uuid */
   id?: string;
   type?: "COMPANY" | "SKILL" | "PROFESSION" | "COUNTRY" | "CITY";
+  name?: string;
+}
+
+/** Ответы для операций с профилем пользователя */
+export interface ApiResponseOnboardingStatusResponse {
+  /** Успешность операции */
+  success?: boolean;
+  /** Сообщение с инофрмацией о результате операции */
+  message?: string;
+  /** Блок с DTO */
+  data?: OnboardingStatusResponse;
+  /**
+   * Время запроса
+   * @format date-time
+   */
+  timestamp?: string;
+  /** Статус код ошибки */
+  errors?: ApiError[];
+}
+
+/** Блок с DTO */
+export interface OnboardingStatusResponse {
+  completed?: boolean;
+}
+
+/** Ответы для операций с профилем пользователя */
+export interface ApiResponseNicknameAvailabilityDto {
+  /** Успешность операции */
+  success?: boolean;
+  /** Сообщение с инофрмацией о результате операции */
+  message?: string;
+  /** Блок с DTO */
+  data?: NicknameAvailabilityDto;
+  /**
+   * Время запроса
+   * @format date-time
+   */
+  timestamp?: string;
+  /** Статус код ошибки */
+  errors?: ApiError[];
+}
+
+/** Блок с DTO */
+export interface NicknameAvailabilityDto {
+  nickname?: string;
+  available?: boolean;
+}
+
+/** Ответы для операций с профилем пользователя */
+export interface ApiResponseListTopSkillDto {
+  /** Успешность операции */
+  success?: boolean;
+  /** Сообщение с инофрмацией о результате операции */
+  message?: string;
+  /** Блок с DTO */
+  data?: TopSkillDto[];
+  /**
+   * Время запроса
+   * @format date-time
+   */
+  timestamp?: string;
+  /** Статус код ошибки */
+  errors?: ApiError[];
+}
+
+/** Блок с DTO */
+export interface TopSkillDto {
+  /** @format uuid */
+  skillId?: string;
   name?: string;
 }
 

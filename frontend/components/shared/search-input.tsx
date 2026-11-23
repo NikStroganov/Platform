@@ -24,6 +24,7 @@ export type SearchInputOption = {
 
 export type SearchInputProps<TOption extends SearchInputOption = SearchInputOption> = AppTextFieldProps & {
   clearable?: boolean;
+  hideSearchIcon?: boolean;
   clearButtonAriaLabel?: string;
   getOptionLabel?: (option: TOption) => string;
   maxVisibleOptions?: number;
@@ -39,6 +40,7 @@ export function SearchInput<TOption extends SearchInputOption = SearchInputOptio
   slotProps,
   sx,
   clearable = false,
+  hideSearchIcon = false,
   clearButtonAriaLabel = "Очистить поиск",
   getOptionLabel = (option) => option.label,
   maxVisibleOptions = 6,
@@ -230,8 +232,8 @@ export function SearchInput<TOption extends SearchInputOption = SearchInputOptio
                 },
               },
               "& .MuiInputAdornment-positionStart": {
-                width: 32,
-                height: 32,
+                width: 28,
+                height: 28,
                 maxHeight: "none",
                 m: 0,
                 color: "#adadad",
@@ -276,9 +278,9 @@ export function SearchInput<TOption extends SearchInputOption = SearchInputOptio
             ...slotProps,
             input: {
               ...inputSlotProps,
-              startAdornment: (
+              startAdornment: hideSearchIcon ? undefined : (
                 <InputAdornment position="start">
-                  <Icon component={SearchOutlinedIcon} sx={{ width: 32, height: 32, display: "block" }} />
+                  <Icon component={SearchOutlinedIcon} sx={{ width: 28, height: 28, display: "block" }} />
                 </InputAdornment>
               ),
               endAdornment,

@@ -31,6 +31,7 @@ export function FieldInput({
 
   return (
     <AppTextField
+      showErrorIcon={false}
       placeholder={placeholder}
       sx={[
         {
@@ -49,9 +50,20 @@ export function FieldInput({
             "&:hover .MuiOutlinedInput-notchedOutline, &.Mui-focused .MuiOutlinedInput-notchedOutline": {
               border: 0,
             },
+            "&.Mui-error .MuiOutlinedInput-notchedOutline, &.Mui-error:hover .MuiOutlinedInput-notchedOutline, &.Mui-error.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              border: "1px solid #ff4d4f",
+            },
             "&.Mui-disabled": {
               bgcolor: "#ffffff",
             },
+          },
+          "& .MuiFormHelperText-root": {
+            m: "8px 0 0",
+            color: "#adadad",
+            fontSize: 14,
+            fontWeight: 500,
+            lineHeight: "18px",
+            "&.Mui-error": { color: "#ff4d4f" },
           },
           "& .MuiInputAdornment-positionStart": {
             width: 32,

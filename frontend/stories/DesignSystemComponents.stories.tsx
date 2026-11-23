@@ -231,6 +231,26 @@ export const FieldInputStory: Story = {
   ),
 };
 
+export const FieldInputInvalidStory: Story = {
+  name: "Field input / Invalid",
+  parameters: {
+    docs: { description: { story: "Ошибки онбординга: красная рамка 1 px и подпись 14/18, без дополнительной иконки ошибки. Рамка сохраняется при наведении и фокусе." } },
+  },
+  render: () => (
+    <ComponentPreviewPanel>
+      <FieldInput id="invalid-experience-max" defaultValue="100" postfix="лет" error helperText="Максимум 50 лет" />
+      <FieldInput id="invalid-experience-min" defaultValue="0" postfix="лет" error helperText="Минимум 1 год" />
+      <FieldInput id="invalid-experience-integer" defaultValue="0." postfix="лет" error helperText="Указать можно только целое число" />
+      <FieldInput id="invalid-grade" defaultValue="!?orkgm32" error helperText={'Название грейда может содержать только латиницу, кириллицу, числа и знаки []"-.,()_:;#*«»'} />
+      <FieldInput id="invalid-salary-max" defaultValue="5 000 000" prefixImageSrc="/onboarding/compensation-coins.svg" postfix="₽" error helperText="Максимум 2 000 000" />
+      <FieldInput id="invalid-salary-min" defaultValue="5 000" prefixImageSrc="/onboarding/compensation-coins.svg" postfix="₽" error helperText="Минимум 28 000" />
+      <FieldInput id="invalid-salary-integer" defaultValue="120 000, 28" prefixImageSrc="/onboarding/compensation-coins.svg" postfix="₽" error helperText="Только целые числа, без знаков" />
+      <FieldInput id="invalid-bonus-max" defaultValue="100 000 000" prefixImageSrc="/onboarding/compensation-gift-01.svg" postfix="₽" error helperText="Максимум 2 000 000" />
+      <FieldInput id="invalid-bonus-integer" defaultValue="600 000, 28" prefixImageSrc="/onboarding/compensation-gift-01.svg" postfix="₽" error helperText="Только целые числа, без знаков" />
+    </ComponentPreviewPanel>
+  ),
+};
+
 export const CompanyButtonsStory: Story = {
   name: "Company buttons",
   render: () => {
@@ -420,6 +440,21 @@ export const ChipInputOverflowStory: Story = {
   },
 };
 
+
+export const ChipInputLimitStory: Story = {
+  name: "Chip input / Limit reached",
+  render: function Render() {
+    const [value, setValue] = React.useState(chipInputOverflowValues.slice(0, 20));
+    return (
+      <ComponentPreviewPanel>
+        <Typography>{value.length}/20</Typography>
+        <ChipInput active value={value} onChange={setValue} maxItems={20} hideInputAtLimit
+          helperText={value.length >= 20 ? "Уберите навык, чтобы добавить другой" : undefined}
+          deleteIconSrc="/onboarding/skills-x-close.svg" />
+      </ComponentPreviewPanel>
+    );
+  },
+};
 
 export const ChipInputActiveStory: Story = {
   name: "Chip input / Active search",

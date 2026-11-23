@@ -12,7 +12,7 @@ import EyeOffIcon from "@/components/shared/icon/icons/eye-off.svg";
 import EyeOnIcon from "@/components/shared/icon/icons/eye-on.svg";
 import InputErrorIcon from "@/components/shared/icon/icons/input-error.svg";
 
-export type AppTextFieldProps = TextFieldProps;
+export type AppTextFieldProps = TextFieldProps & { showErrorIcon?: boolean };
 
 function PasswordToggleIcon({ visible }: { visible: boolean }) {
   return <Icon component={visible ? EyeOnIcon : EyeOffIcon} sx={{ fontSize: 16 }} />;
@@ -29,6 +29,7 @@ export function AppTextField({
   type,
   slotProps,
   error,
+  showErrorIcon = true,
   ...props
 }: AppTextFieldProps) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -43,7 +44,7 @@ export function AppTextField({
   const existingAdornment = inputSlotProps?.endAdornment;
 
   const generatedAdornment =
-    error || isPasswordField ? (
+    (error && showErrorIcon) || isPasswordField ? (
       <InputAdornment position="end">
         <Box
           sx={{
@@ -54,7 +55,7 @@ export function AppTextField({
           }}
         >
           {existingAdornment}
-          {error ? <ErrorStateIcon /> : null}
+          {error && showErrorIcon ? <ErrorStateIcon /> : null}
           {isPasswordField ? (
             <IconButton
               edge="end"

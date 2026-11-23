@@ -34,6 +34,7 @@ export function SwitchButtons({ options, value, onChange, activeColorHex, sx, ..
         return (
           <ButtonBase
             key={option.value}
+            data-motion="segment"
             disableRipple
             aria-pressed={selected}
             onClick={() => onChange?.(option.value)}

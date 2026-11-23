@@ -7,6 +7,8 @@ import { refreshSession } from "@/features/auth/api/auth-client";
 import { getAccessToken, getRefreshToken } from "@/lib/auth";
 import { clearAuthTokens, setAuthTokens } from "@/features/auth/lib/token-storage";
 import { initializeApiInterceptors } from "@/lib/api/client";
+import { getOnboardingStatus } from "@/features/profile-completion/api/profile-completion-api";
+import { AppButton } from "@/components/ui/app-button";
 
 type AuthGuardProps = {
   children: ReactNode;
@@ -19,6 +21,8 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [guardState, setGuardState] = useState<GuardState>("checking");
+  const [status, setStatus] = useState<{ pathname: string; completed?: boolean; failed?: boolean }>();
+  const [statusAttempt, setStatusAttempt] = useState(0);
   const isPublicPath = PUBLIC_PATHS.has(pathname);
   const shouldRedirectToAuth = guardState === "guest" && !isPublicPath;
   const shouldRedirectToHome = guardState === "authed" && pathname === "/auth";
@@ -74,6 +78,20 @@ export function AuthGuard({ children }: AuthGuardProps) {
   }, [pathname]);
 
   useEffect(() => {
+    if (guardState !== "authed" || isPublicPath) return;
+    let active = true;
+    getOnboardingStatus().then(completed => {
+      if (!active) return;
+      setStatus({ pathname, completed });
+      if (!completed && pathname !== "/onboarding") router.replace("/onboarding");
+      if (completed && pathname === "/onboarding") router.replace("/");
+    }).catch(() => {
+      if (active) setStatus({ pathname, failed: true });
+    });
+    return () => { active = false; };
+  }, [guardState, isPublicPath, pathname, router, statusAttempt]);
+
+  useEffect(() => {
     if (shouldRedirectToAuth) {
       router.replace("/auth");
       return;
@@ -86,6 +104,15 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   if (guardState === "checking" || shouldRedirectToAuth || shouldRedirectToHome) {
     return null;
+  }
+
+  if (!isPublicPath && guardState === "authed") {
+    if (status?.pathname !== pathname) return null;
+    if (status.failed) return <main role="alert" style={{ padding: 24 }}>
+      <p>Не удалось проверить статус профиля. Попробуйте ещё раз.</p>
+      <AppButton onClick={() => { setStatus(undefined); setStatusAttempt(current => current + 1); }}>Повторить</AppButton>
+    </main>;
+    if (status.completed !== (pathname !== "/onboarding")) return null;
   }
 
   return <>{children}</>;
