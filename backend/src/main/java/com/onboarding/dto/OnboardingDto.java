@@ -32,9 +32,12 @@ public record OnboardingDto(
         @NotNull
         SeniorityLevel seniorityLevel,
 
-        @Min(1)
-        @Max(100)
-        Integer companyGrade,
+        @Size(min = 1, max = 10)
+        @Pattern(
+                regexp = "^[a-zA-Z0-9]+(?:[ ._-][a-zA-Z0-9]+)*$",
+                message = "Invalid company grade format"
+        )
+        String companyGrade,
 
         @NotNull
         @DecimalMin(value = "0.0")

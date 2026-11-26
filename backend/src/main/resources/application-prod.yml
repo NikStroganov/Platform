@@ -49,8 +49,8 @@ app:
 
 smart-search:
   minimum-similarity: 0.30
-  minimum-partial-query-length: 3
-  minimum-fuzzy-query-length: 4
+  minimum-partial-query-length: 1
+  minimum-fuzzy-query-length: 1
 
 skills:
   max-selected: 15
