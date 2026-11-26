@@ -78,8 +78,8 @@ public class ProfileEntity {
     @Column(name = "seniority_level")
     private SeniorityLevel seniorityLevel;
 
-    @Column(name = "company_grade")
-    private Integer companyGrade;
+    @Column(name = "company_grade", length = 10)
+    private String companyGrade;
 
 //TODO Продумать диапазоны и обработчики
 
